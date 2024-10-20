@@ -19,6 +19,28 @@ The Binder is represented by our lovable eyeball logo, symbolizing the watchful 
 - **Report Saving and Loading**: Save your compilation settings as reports and load them later.
 - **User-Friendly GUI**: Colorful and intuitive interface for easy navigation and use.
 
+## Dependencies
+
+The Binder relies on the following Python libraries:
+
+1. tkinter: Used for creating the graphical user interface.
+   - Installation: Typically comes pre-installed with Python.
+
+2. PyPDF2: Handles PDF file operations such as merging and page extraction.
+   - Installation: `pip install PyPDF2`
+
+3. Pillow (PIL): Used for image processing, particularly for handling the application icon.
+   - Installation: `pip install Pillow`
+
+4. json: Used for saving and loading report data.
+   - Installation: Part of Python's standard library, no additional installation required.
+
+5. threading: Used for running the HTTP server alongside the GUI.
+   - Installation: Part of Python's standard library, no additional installation required.
+
+6. http.server and socketserver: Used for creating a simple HTTP server.
+   - Installation: Part of Python's standard library, no additional installation required.
+
 ## Installation
 
 1. Clone this repository:

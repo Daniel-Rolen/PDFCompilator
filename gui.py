@@ -225,20 +225,19 @@ class PDFCompilerGUI:
         return selected_pages
 
     def save_report(self):
-        name = simpledialog.askstring("Save Report", "Enter a name for this report:")
-        if name:
-            page_selections = self.get_page_selections()
-            if page_selections:
-                use_cover_pages = self.use_cover_pages_var.get()
-                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files)) if use_cover_pages else None
-                report = Report(name, [file_path for file_path, _ in self.selected_files], page_selections, use_cover_pages, cover_pages)
-                self.reports.append(report)
-                self.save_reports_to_file()
-                self.update_report_listbox()
-                messagebox.showinfo("Report Saved", f"Report '{name}' has been saved.")
-                print(f"Debug: Report saved - {name}")
-            else:
-                messagebox.showwarning("Invalid Input", "Please select valid pages before saving the report.")
+        name = generate_space_name()
+        page_selections = self.get_page_selections()
+        if page_selections:
+            use_cover_pages = self.use_cover_pages_var.get()
+            cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files)) if use_cover_pages else None
+            report = Report(name, [file_path for file_path, _ in self.selected_files], page_selections, use_cover_pages, cover_pages)
+            self.reports.append(report)
+            self.save_reports_to_file()
+            self.update_report_listbox()
+            messagebox.showinfo("Report Saved", f"Report '{name}' has been saved.")
+            print(f"Debug: Report saved - {name}")
+        else:
+            messagebox.showwarning("Invalid Input", "Please select valid pages before saving the report.")
 
     def load_report(self):
         if not self.reports:
@@ -307,6 +306,15 @@ class PDFCompilerGUI:
             self.select_output_folder()
             if not self.output_folder:
                 return
+
+        if not hasattr(self, 'current_report'):
+            save_report = messagebox.askyesno("Save Report", "No report is currently loaded. Would you like to save the current configuration as a report before compiling?")
+            if save_report:
+                self.save_report()
+            else:
+                proceed = messagebox.askyesno("Proceed", "Do you want to proceed with compilation without saving a report?")
+                if not proceed:
+                    return
 
         if page_selections is None:
             page_selections = self.get_page_selections()
