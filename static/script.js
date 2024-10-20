@@ -132,6 +132,11 @@ function updatePdfLists() {
                 li.classList.add('space-element');
                 availableFilesList.appendChild(li);
             });
+            
+            // Add new interactive functionalities
+            addDragAndDropFunctionality();
+            addPreviewFunctionality();
+            addModalFunctionality();
         });
 }
 
@@ -238,4 +243,119 @@ loadReportButton.addEventListener('click', () => {
     input.click();
 });
 
+function addDragAndDropFunctionality() {
+    const list = document.getElementById('selectedFilesList');
+    new Sortable(list, {
+        animation: 150,
+        ghostClass: 'blue-background-class',
+        onEnd: function (evt) {
+            const item = evt.item;
+            const newIndex = evt.newIndex;
+            const oldIndex = evt.oldIndex;
+            
+            // Update the order of PDFs in the backend
+            fetch('/reorder_pdfs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ oldIndex, newIndex }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('PDF order updated successfully');
+                } else {
+                    console.error('Failed to update PDF order');
+                    // Revert the change in the UI
+                    if (newIndex < oldIndex) {
+                        list.insertBefore(item, list.children[oldIndex + 1]);
+                    } else {
+                        list.insertBefore(item, list.children[oldIndex]);
+                    }
+                }
+            });
+        }
+    });
+}
+
+function addPreviewFunctionality() {
+    const listItems = document.querySelectorAll('#selectedFilesList li, #availableFilesList li');
+    const previewElement = document.getElementById('pdfPreview');
+
+    listItems.forEach(item => {
+        item.addEventListener('mouseover', (event) => {
+            const pdfName = event.target.textContent;
+            fetch(`/preview_pdf/${encodeURIComponent(pdfName)}`)
+                .then(response => response.blob())
+                .then(blob => {
+                    const objectURL = URL.createObjectURL(blob);
+                    previewElement.style.backgroundImage = `url(${objectURL})`;
+                    previewElement.style.display = 'block';
+                    
+                    const updatePreviewPosition = (e) => {
+                        previewElement.style.left = `${e.pageX + 10}px`;
+                        previewElement.style.top = `${e.pageY + 10}px`;
+                    };
+                    
+                    updatePreviewPosition(event);
+                    item.addEventListener('mousemove', updatePreviewPosition);
+                    
+                    item.addEventListener('mouseout', () => {
+                        previewElement.style.display = 'none';
+                        URL.revokeObjectURL(objectURL);
+                    }, { once: true });
+                });
+        });
+    });
+}
+
+function addModalFunctionality() {
+    const listItems = document.querySelectorAll('#selectedFilesList li, #availableFilesList li');
+    const modal = document.getElementById('pdfModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    const closeBtn = document.getElementsByClassName('close')[0];
+
+    listItems.forEach(item => {
+        item.addEventListener('click', (event) => {
+            const pdfName = event.target.textContent;
+            fetch(`/pdf_info/${encodeURIComponent(pdfName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    modalTitle.textContent = data.filename;
+                    modalContent.innerHTML = `
+                        <p>Number of pages: ${data.num_pages}</p>
+                        <p>File size: ${data.file_size}</p>
+                        <p>Created: ${data.created_date}</p>
+                        <p>Modified: ${data.modified_date}</p>
+                    `;
+                    modal.style.display = 'block';
+                });
+        });
+    });
+
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+}
+
+// Load Sortable library
+const script = document.createElement('script');
+script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js';
+script.onload = () => {
+    console.log('Sortable library loaded');
+    addDragAndDropFunctionality();
+};
+document.head.appendChild(script);
+
+// Call the new functions to add interactivity
 updatePdfLists();
+addPreviewFunctionality();
+addModalFunctionality();

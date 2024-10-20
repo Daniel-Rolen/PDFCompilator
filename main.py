@@ -1,8 +1,11 @@
-from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask import Flask, render_template, jsonify, request, send_from_directory, send_file
 import os
 import json
-from pdf_compiler import compile_pdfs
+from pdf_compiler import compile_pdfs, get_pdf_info, parse_page_range
 from name_generator import generate_space_name
+from PyPDF2 import PdfReader
+from io import BytesIO
+import fitz  # PyMuPDF
 
 app = Flask(__name__)
 
@@ -10,7 +13,7 @@ app = Flask(__name__)
 pdf_files = []
 
 # Add a version number for cache busting
-STATIC_VERSION = "1"
+STATIC_VERSION = "3"
 
 @app.route('/')
 def index():
@@ -52,6 +55,52 @@ def compile_pdf():
 @app.route('/get_pdfs', methods=['GET'])
 def get_pdfs():
     return jsonify(pdf_files)
+
+@app.route('/reorder_pdfs', methods=['POST'])
+def reorder_pdfs():
+    old_index = request.json.get('oldIndex')
+    new_index = request.json.get('newIndex')
+    
+    if old_index is not None and new_index is not None:
+        pdf_files.insert(new_index, pdf_files.pop(old_index))
+        return jsonify(success=True, message="PDF order updated successfully")
+    return jsonify(success=False, message="Invalid indices provided")
+
+@app.route('/preview_pdf/<pdf_name>')
+def preview_pdf(pdf_name):
+    if pdf_name in pdf_files:
+        try:
+            # Open the PDF file
+            pdf_document = fitz.open(pdf_name)
+            
+            # Get the first page
+            page = pdf_document[0]
+            
+            # Render the page as a PNG image
+            pix = page.get_pixmap()
+            img_bytes = pix.tobytes("png")
+            
+            # Close the PDF document
+            pdf_document.close()
+            
+            # Send the image as a response
+            return send_file(
+                BytesIO(img_bytes),
+                mimetype='image/png'
+            )
+        except Exception as e:
+            return jsonify(success=False, message=f"Error generating preview: {str(e)}")
+    return jsonify(success=False, message="PDF not found")
+
+@app.route('/pdf_info/<pdf_name>')
+def pdf_info(pdf_name):
+    if pdf_name in pdf_files:
+        try:
+            info = get_pdf_info(pdf_name)
+            return jsonify(info)
+        except Exception as e:
+            return jsonify(success=False, message=f"Error fetching PDF info: {str(e)}")
+    return jsonify(success=False, message="PDF not found")
 
 if __name__ == '__main__':
     if not os.path.exists("output"):
