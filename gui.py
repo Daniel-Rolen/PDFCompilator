@@ -6,6 +6,9 @@ from pdf_compiler import PDFCompiler
 from name_generator import generate_space_name
 import json
 from PIL import Image, ImageTk
+import threading
+import http.server
+import socketserver
 
 def parse_page_selection(pages_str, max_pages):
     pages = set()
@@ -36,12 +39,10 @@ class BubblyStyle(ttk.Style):
         super().__init__()
         self.theme_use('clam')
         
-        # Colors
-        self.bg_color = "#FF69B4"  # Hot pink
-        self.fg_color = "#00FF00"  # Lime green
-        self.accent_color = "#FFD700"  # Gold
+        self.bg_color = "#FF69B4"
+        self.fg_color = "#00FF00"
+        self.accent_color = "#FFD700"
         
-        # Configure styles
         self.configure("TFrame", background=self.bg_color)
         self.configure("TButton", 
                        background=self.fg_color, 
@@ -53,7 +54,6 @@ class BubblyStyle(ttk.Style):
                  background=[("active", self.accent_color)],
                  relief=[("pressed", "sunken")])
         
-        # Rounded corners for buttons
         self.layout("TButton", [
             ("Button.padding", {"children": [
                 ("Button.label", {"side": "left", "expand": 1})
@@ -72,14 +72,16 @@ class PDFCompilerGUI:
         
         self.style = BubblyStyle()
         
-        # Load and display cute PDF icon
-        icon_path = os.path.join("assets", "app_icon.png")
+        icon_path = os.path.join('assets', 'app_icon.png')
         if os.path.exists(icon_path):
-            self.pdf_icon = ImageTk.PhotoImage(Image.open(icon_path).resize((50, 50)))
-            icon_label = ttk.Label(self.master, image=self.pdf_icon, background=self.style.bg_color)
-            icon_label.pack(pady=10)
+            try:
+                self.pdf_icon = ImageTk.PhotoImage(Image.open(icon_path).resize((50, 50)))
+                icon_label = ttk.Label(self.master, image=self.pdf_icon, background=self.style.bg_color)
+                icon_label.pack(pady=10)
+            except Exception as e:
+                print(f'Error loading icon: {str(e)}')
         else:
-            print(f"Warning: Icon file not found at {icon_path}")
+            print(f'Icon file not found: {icon_path}')
         
         self.selected_files = {}
         self.output_folder = None
@@ -91,7 +93,6 @@ class PDFCompilerGUI:
         main_frame = ttk.Frame(self.master, padding=20)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # File selection
         file_frame = ttk.Frame(main_frame, padding=10)
         file_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
@@ -115,7 +116,6 @@ class PDFCompilerGUI:
         self.create_bubbly_button(button_frame, "💾 Save Report", self.save_report).pack(side=tk.LEFT, padx=5)
         self.create_bubbly_button(button_frame, "📤 Load Report", self.load_report).pack(side=tk.LEFT, padx=5)
 
-        # Cover pages section
         cover_frame = ttk.Frame(main_frame, padding=10)
         cover_frame.pack(fill=tk.X, pady=10)
 
@@ -132,11 +132,9 @@ class PDFCompilerGUI:
 
         self.create_bubbly_button(main_frame, "🚀 Compile PDFs", self.compile_pdfs).pack(pady=10)
 
-        # Output folder display
         self.output_folder_label = ttk.Label(main_frame, text="Output Folder: none", wraplength=600)
         self.output_folder_label.pack(pady=5)
 
-        # Saved reports section
         report_frame = ttk.Frame(main_frame, padding=10)
         report_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
@@ -308,9 +306,29 @@ class PDFCompilerGUI:
         else:
             messagebox.showerror("Error", "Failed to compile PDFs. Please try again.")
 
+    def start_http_server(self):
+        class Handler(http.server.SimpleHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b"PDF Compiler is running!")
+
+        port = 8080
+        handler = Handler
+        with socketserver.TCPServer(("", port), handler) as httpd:
+            print(f"Serving at port {port}")
+            httpd.serve_forever()
+
 def main():
     root = tk.Tk()
-    PDFCompilerGUI(root)
+    app = PDFCompilerGUI(root)
+    
+    # Start the HTTP server in a separate thread
+    server_thread = threading.Thread(target=app.start_http_server)
+    server_thread.daemon = True
+    server_thread.start()
+    
     root.mainloop()
 
 if __name__ == "__main__":
