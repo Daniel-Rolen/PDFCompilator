@@ -170,10 +170,11 @@ class PDFCompilerGUI:
     def remove_pdf(self):
         selection = self.file_listbox.curselection()
         if selection:
-            file_path = list(self.selected_files.keys())[selection[0]]
+            index = selection[0]
+            file_path = list(self.selected_files.keys())[index]
             del self.selected_files[file_path]
-            self.file_listbox.delete(selection[0])
-        self.update_cover_source_label()
+            self.file_listbox.delete(index)
+            self.update_cover_source_label()
 
     def select_output_folder(self):
         self.output_folder = filedialog.askdirectory()
@@ -324,7 +325,6 @@ def main():
     root = tk.Tk()
     app = PDFCompilerGUI(root)
     
-    # Start the HTTP server in a separate thread
     server_thread = threading.Thread(target=app.start_http_server)
     server_thread.daemon = True
     server_thread.start()
