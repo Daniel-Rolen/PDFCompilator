@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 import os
 import json
 
@@ -10,6 +10,10 @@ pdf_files = []
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/static/<path:path>')
+def send_static(path):
+    return send_from_directory('static', path)
 
 @app.route('/add_pdf', methods=['POST'])
 def add_pdf():

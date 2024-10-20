@@ -43,6 +43,9 @@ The Binder relies on the following Python libraries:
 6. http.server and socketserver: Used for creating a simple HTTP server.
    - Installation: Part of Python's standard library, no additional installation required.
 
+7. Flask: Web framework used for the backend API.
+   - Installation: `pip install flask`
+
 ## Installation
 
 1. Clone this repository:
@@ -54,6 +57,7 @@ The Binder relies on the following Python libraries:
 2. Install the required dependencies:
    ```
    pip install -r requirements.txt
+   pip install flask  # Ensure Flask is installed
    ```
 
 ## Usage
@@ -94,6 +98,7 @@ Note: The table of contents functionality is integrated with the cover page sett
 2. The Electron app is currently failing to start due to a missing shared library (libxshmfence.so.1).
 3. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
 4. The "Remove PDF" button functionality is inconsistent.
+5. Flask module not found: Ensure Flask is installed properly using `pip install flask`.
 
 ## Current Status
 
