@@ -70,30 +70,35 @@ class PDFCompilerGUI:
             del self.selected_files[file_path]
             self.file_listbox.delete(selection[0])
 
+    def get_page_selections(self):
+        pdf_info = "\n".join([f"{info['file_name']} ({info['num_pages']} pages)" for info in self.selected_files.values()])
+        page_input = simpledialog.askstring("Select Pages", 
+            f"Enter page numbers or ranges for all PDFs (comma-separated):\n"
+            f"Example: 1,3,5-7,10-12\n\n"
+            f"Available PDFs:\n{pdf_info}")
+        
+        if not page_input:
+            return None
+
+        selected_pages = {}
+        for file_path, pdf_info in self.selected_files.items():
+            try:
+                page_list = parse_page_selection(page_input, pdf_info['num_pages'])
+                if page_list:
+                    selected_pages[file_path] = page_list
+            except ValueError as e:
+                messagebox.showwarning("Invalid Input", f"Error parsing pages for {pdf_info['file_name']}: {str(e)}")
+                return None
+
+        return selected_pages
+
     def compile_pdfs(self):
         if not self.selected_files:
             messagebox.showwarning("No PDFs", "Please add PDF files before compiling.")
             return
 
-        selected_pages = {}
-        for file_path, pdf_info in self.selected_files.items():
-            pages = simpledialog.askstring(f"Select pages for {pdf_info['file_name']}",
-                                           f"Enter page numbers or ranges (1-{pdf_info['num_pages']}, comma-separated):\n"
-                                           f"Example: 1,3,5-7,10-12")
-            if pages:
-                try:
-                    page_list = parse_page_selection(pages, pdf_info['num_pages'])
-                    if page_list:
-                        selected_pages[file_path] = page_list
-                    else:
-                        messagebox.showwarning("Invalid Input", f"No valid pages selected for {pdf_info['file_name']}.")
-                        return
-                except ValueError as e:
-                    messagebox.showwarning("Invalid Input", f"Error parsing pages for {pdf_info['file_name']}: {str(e)}")
-                    return
-
+        selected_pages = self.get_page_selections()
         if not selected_pages:
-            messagebox.showwarning("No Pages Selected", "Please select pages from at least one PDF.")
             return
 
         output_file = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF Files", "*.pdf")])
