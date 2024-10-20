@@ -71,7 +71,7 @@ h1, h2 {
 }
 
 button, input[type="text"], input[type="checkbox"] {
-    background-color: #0a0a0a;
+    background-color: rgba(10, 10, 10, 0.8);
     color: #00ff00;
     border: 2px solid #00ff00;
     padding: 10px 20px;
@@ -81,12 +81,30 @@ button, input[type="text"], input[type="checkbox"] {
     font-family: 'Courier New', monospace;
     text-transform: uppercase;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button::before, input[type="text"]::before, input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0,255,0,0.1) 0%, rgba(0,255,0,0) 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+button:hover::before, input[type="text"]:focus::before, input[type="checkbox"]:checked::before {
+    opacity: 1;
 }
 
 button:hover, input[type="text"]:focus {
-    background-color: #00ff00;
-    color: #0a0a0a;
-    box-shadow: 0 0 10px #00ff00;
+    background-color: rgba(0, 255, 0, 0.2);
+    color: #ffffff;
+    box-shadow: 0 0 15px #00ff00;
 }
 
 #pdfSections {
@@ -110,6 +128,12 @@ button:hover, input[type="text"]:focus {
     border-radius: 3px;
     list-style-type: none;
     border: 1px solid #ff00ff;
+    transition: all 0.3s ease;
+}
+
+#pdfList li:hover, #selectedFilesList li:hover, #availableFilesList li:hover {
+    background-color: rgba(255, 0, 255, 0.3);
+    box-shadow: 0 0 10px #ff00ff;
 }
 
 #coverPageSettings {
@@ -154,4 +178,21 @@ button:hover, input[type="text"]:focus {
 
 h1, h2 {
     animation: glitch 1s infinite;
+}
+
+/* Bubble-like glow effect */
+@keyframes bubble-glow {
+    0% {
+        box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00, 0 0 20px #00ff00;
+    }
+    50% {
+        box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
+    }
+    100% {
+        box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00, 0 0 20px #00ff00;
+    }
+}
+
+button:hover, input[type="text"]:focus, input[type="checkbox"]:checked {
+    animation: bubble-glow 1.5s infinite;
 }
