@@ -73,9 +73,13 @@ class PDFCompilerGUI:
         self.style = BubblyStyle()
         
         # Load and display cute PDF icon
-        self.pdf_icon = ImageTk.PhotoImage(Image.open("assets/app_icon.svg").resize((50, 50)))
-        icon_label = ttk.Label(self.master, image=self.pdf_icon, background=self.style.bg_color)
-        icon_label.pack(pady=10)
+        icon_path = os.path.join("assets", "app_icon.png")
+        if os.path.exists(icon_path):
+            self.pdf_icon = ImageTk.PhotoImage(Image.open(icon_path).resize((50, 50)))
+            icon_label = ttk.Label(self.master, image=self.pdf_icon, background=self.style.bg_color)
+            icon_label.pack(pady=10)
+        else:
+            print(f"Warning: Icon file not found at {icon_path}")
         
         self.selected_files = {}
         self.output_folder = None
