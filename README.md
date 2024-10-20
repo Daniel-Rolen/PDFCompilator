@@ -1,5 +1,7 @@
 # The Binder
 
+Current development is on the 'Bubbles' branch.
+
 A Python-based desktop application for PDF compilation with local file handling and a fun, user-friendly interface.
 
 ## 🎨 Branding
@@ -88,8 +90,14 @@ Note: The table of contents functionality is integrated with the cover page sett
 
 ## Known Issues
 
-1. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
-2. The "Remove PDF" button functionality is inconsistent.
+1. The Flask application shows a warning about being a development server, which is expected and not an issue for our current development work.
+2. The Electron app is currently failing to start due to a missing shared library (libxshmfence.so.1).
+3. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
+4. The "Remove PDF" button functionality is inconsistent.
+
+## Current Status
+
+We are currently working on implementing animated GUI elements using Electron.js while maintaining the existing Python backend functionality.
 
 ## License
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Binder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="app">
+        <div id="bubbly-background"></div>
+        <div id="eyeball-mascots">
+            <div class="eyeball" id="eyeball1"></div>
+            <div class="eyeball" id="eyeball2"></div>
+        </div>
+        <div id="content">
+            <h1>The Binder</h1>
+            <div id="controls">
+                <input type="text" id="pdfName" placeholder="Enter PDF name">
+                <button id="addPdf">Add PDF</button>
+                <button id="removePdf">Remove PDF</button>
+                <button id="compilePdf">Compile PDF</button>
+            </div>
+            <div id="pdfList"></div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
