@@ -8,15 +8,15 @@ canvas.height = window.innerHeight;
 
 // Particle properties
 const particles = [];
-const particleCount = 100;
+const particleCount = 50; // Reduced from 100 to 50 for better performance
 
 class Particle {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.size = Math.random() * 2 + 1;
-        this.speedX = Math.random() * 3 - 1.5;
-        this.speedY = Math.random() * 3 - 1.5;
+        this.speedX = Math.random() * 2 - 1; // Reduced speed range
+        this.speedY = Math.random() * 2 - 1; // Reduced speed range
         this.color = `hsl(${Math.random() * 60 + 180}, 100%, 50%)`;
     }
 
@@ -45,36 +45,43 @@ for (let i = 0; i < particleCount; i++) {
     particles.push(new Particle());
 }
 
+let animationFrameId;
+
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     particles.forEach(particle => {
         particle.update();
         particle.draw();
     });
-    requestAnimationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
 }
 
 animate();
 
 // Cybernetic eyeball animation
 const eyeballs = document.querySelectorAll('.eyeball');
+let lastEyeballUpdate = 0;
+const eyeballUpdateInterval = 100; // Update every 100ms
 
-function animateEyeballs() {
-    eyeballs.forEach(eyeball => {
-        const pupil = eyeball.querySelector('.eyeball::after');
-        const angle = Math.random() * Math.PI * 2;
-        const distance = Math.random() * 10;
-        const x = Math.cos(angle) * distance;
-        const y = Math.sin(angle) * distance;
-        
-        eyeball.style.setProperty('--pupil-x', `${x}px`);
-        eyeball.style.setProperty('--pupil-y', `${y}px`);
-    });
+function animateEyeballs(timestamp) {
+    if (timestamp - lastEyeballUpdate > eyeballUpdateInterval) {
+        eyeballs.forEach(eyeball => {
+            const pupil = eyeball.querySelector('.eyeball::after');
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 10;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            
+            eyeball.style.setProperty('--pupil-x', `${x}px`);
+            eyeball.style.setProperty('--pupil-y', `${y}px`);
+        });
+        lastEyeballUpdate = timestamp;
+    }
     
     requestAnimationFrame(animateEyeballs);
 }
 
-animateEyeballs();
+animateEyeballs(0);
 
 // Glitch effect for neon elements
 class GlitchEffect {

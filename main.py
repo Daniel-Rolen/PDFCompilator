@@ -9,9 +9,12 @@ app = Flask(__name__)
 # Initialize an empty list to store PDF file names
 pdf_files = []
 
+# Add a version number for cache busting
+STATIC_VERSION = "1"
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', static_version=STATIC_VERSION)
 
 @app.route('/static/<path:path>')
 def send_static(path):
