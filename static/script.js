@@ -11,45 +11,77 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// Star properties
-const stars = [];
-const starCount = 200;
-const maxStarSize = 2;
+// Galaxy properties
+const galaxyParticles = [];
+const particleCount = 1000;
+const baseSize = 1;
+const additionalSize = 2;
+const baseSpeed = 0.02;
+const additionalSpeed = 0.04;
 
-class Star {
+class GalaxyParticle {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * maxStarSize;
-        this.speed = Math.random() * 0.2;
-        this.brightness = Math.random();
+        this.size = Math.random() * additionalSize + baseSize;
+        this.originalSize = this.size;
+        this.speed = Math.random() * additionalSpeed + baseSpeed;
+        this.vx = Math.random() * 2 - 1;
+        this.vy = Math.random() * 2 - 1;
+        this.hue = Math.random() * 60 + 200; // Blue to purple hues
     }
 
-    update() {
-        this.y -= this.speed;
-        if (this.y < 0) {
-            this.y = canvas.height;
+    update(mouseX, mouseY) {
+        this.x += this.vx * this.speed;
+        this.y += this.vy * this.speed;
+
+        // Wrap around screen
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+
+        // Interactive effect
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const maxDistance = 100;
+        
+        if (distance < maxDistance) {
+            const force = (maxDistance - distance) / maxDistance;
+            this.vx += dx / distance * force * 0.02;
+            this.vy += dy / distance * force * 0.02;
+            this.size = this.originalSize + force * additionalSize;
+        } else {
+            this.size = this.originalSize;
         }
-        this.brightness = Math.sin(performance.now() * 0.001 * this.speed) * 0.5 + 0.5;
     }
 
     draw() {
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.brightness})`;
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 50%, 0.8)`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
     }
 }
 
-// Create initial stars
-for (let i = 0; i < starCount; i++) {
-    stars.push(new Star());
+// Create initial particles
+for (let i = 0; i < particleCount; i++) {
+    galaxyParticles.push(new GalaxyParticle());
 }
 
 let animationFrameId;
 let lastTime = 0;
-const targetFPS = 30;
+const targetFPS = 60;
 const frameInterval = 1000 / targetFPS;
+
+let mouseX = 0;
+let mouseY = 0;
+
+canvas.addEventListener('mousemove', (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+});
 
 function animate(currentTime) {
     animationFrameId = requestAnimationFrame(animate);
@@ -60,9 +92,10 @@ function animate(currentTime) {
     lastTime = currentTime - (deltaTime % frameInterval);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    stars.forEach(star => {
-        star.update();
-        star.draw();
+    
+    galaxyParticles.forEach(particle => {
+        particle.update(mouseX, mouseY);
+        particle.draw();
     });
 }
 
@@ -93,7 +126,6 @@ function updatePdfLists() {
                 li.classList.add('space-element');
                 selectedFilesList.appendChild(li);
             });
-            // For now, we'll just duplicate the selected files in the available files list
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
@@ -206,5 +238,4 @@ loadReportButton.addEventListener('click', () => {
     input.click();
 });
 
-// Initial PDF list update
 updatePdfLists();
