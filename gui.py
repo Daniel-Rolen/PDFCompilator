@@ -9,6 +9,7 @@ from PIL import Image, ImageTk
 import threading
 import http.server
 import socketserver
+import fitz  # PyMuPDF
 
 def parse_page_selection(pages_str, max_pages):
     pages = set()
@@ -68,7 +69,7 @@ class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
         self.master.title("The Binder")
-        self.master.geometry("700x800")
+        self.master.geometry("1000x800")
         
         self.style = BubblyStyle()
         
@@ -76,7 +77,7 @@ class PDFCompilerGUI:
         if os.path.exists(icon_path):
             try:
                 self.pdf_icon = ImageTk.PhotoImage(Image.open(icon_path).resize((50, 50)))
-                icon_label = ttk.Label(self.master, image=self.pdf_icon, background=self.style.bg_color)
+                icon_label = ttk.Label(self.master, image=self.pdf_icon)
                 icon_label.pack(pady=10)
             except Exception as e:
                 print(f'Error loading icon: {str(e)}')
@@ -93,13 +94,20 @@ class PDFCompilerGUI:
         main_frame = ttk.Frame(self.master, padding=20)
         main_frame.pack(fill=tk.BOTH, expand=True)
 
-        file_frame = ttk.Frame(main_frame, padding=10)
+        left_frame = ttk.Frame(main_frame, padding=10)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        right_frame = ttk.Frame(main_frame, padding=10)
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        file_frame = ttk.Frame(left_frame, padding=10)
         file_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         ttk.Label(file_frame, text="Selected PDFs:", font=("Comic Sans MS", 14, "bold")).pack(anchor=tk.W)
 
         self.file_listbox = tk.Listbox(file_frame, width=50, height=10, bg="#FFE5EC", fg=self.style.fg_color, font=("Comic Sans MS", 12))
         self.file_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.file_listbox.bind('<<ListboxSelect>>', self.on_file_select)
 
         scrollbar = ttk.Scrollbar(file_frame, orient=tk.VERTICAL)
         scrollbar.config(command=self.file_listbox.yview)
@@ -107,7 +115,7 @@ class PDFCompilerGUI:
 
         self.file_listbox.config(yscrollcommand=scrollbar.set)
 
-        button_frame = ttk.Frame(main_frame)
+        button_frame = ttk.Frame(left_frame)
         button_frame.pack(fill=tk.X, pady=10)
 
         self.create_bubbly_button(button_frame, "📁 Add PDF", self.add_pdf).pack(side=tk.LEFT, padx=5)
@@ -118,7 +126,7 @@ class PDFCompilerGUI:
         self.create_bubbly_button(button_frame, "💾 Save Report", self.save_report).pack(side=tk.LEFT, padx=5)
         self.create_bubbly_button(button_frame, "📤 Load Report", self.load_report).pack(side=tk.LEFT, padx=5)
 
-        cover_frame = ttk.Frame(main_frame, padding=10)
+        cover_frame = ttk.Frame(left_frame, padding=10)
         cover_frame.pack(fill=tk.X, pady=10)
 
         self.use_cover_pages_var = tk.BooleanVar()
@@ -133,7 +141,7 @@ class PDFCompilerGUI:
         self.cover_source_label.pack(side=tk.BOTTOM, pady=5)
 
         # New page selection frame
-        page_selection_frame = ttk.Frame(main_frame, padding=10)
+        page_selection_frame = ttk.Frame(left_frame, padding=10)
         page_selection_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         ttk.Label(page_selection_frame, text="Available PDFs:", font=("Comic Sans MS", 14, "bold")).pack(anchor=tk.W)
@@ -148,12 +156,12 @@ class PDFCompilerGUI:
         self.page_selection_entry = ttk.Entry(page_selection_frame, width=50, font=("Comic Sans MS", 12))
         self.page_selection_entry.pack(fill=tk.X, pady=5)
 
-        self.create_bubbly_button(main_frame, "🚀 Compile PDFs", self.compile_pdfs).pack(pady=10)
+        self.create_bubbly_button(left_frame, "🚀 Compile PDFs", self.compile_pdfs).pack(pady=10)
 
-        self.output_folder_label = ttk.Label(main_frame, text="Output Folder: none", wraplength=600)
+        self.output_folder_label = ttk.Label(left_frame, text="Output Folder: none", wraplength=600)
         self.output_folder_label.pack(pady=5)
 
-        report_frame = ttk.Frame(main_frame, padding=10)
+        report_frame = ttk.Frame(left_frame, padding=10)
         report_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
         ttk.Label(report_frame, text="Saved Reports:", font=("Comic Sans MS", 14, "bold")).pack(anchor=tk.W)
@@ -166,6 +174,31 @@ class PDFCompilerGUI:
         report_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.report_listbox.config(yscrollcommand=report_scrollbar.set)
+
+        # Preview frame
+        preview_frame = ttk.Frame(right_frame, padding=10)
+        preview_frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(preview_frame, text="PDF Preview:", font=("Comic Sans MS", 14, "bold")).pack(anchor=tk.W)
+
+        self.preview_canvas = tk.Canvas(preview_frame, bg="white", width=400, height=600)
+        self.preview_canvas.pack(fill=tk.BOTH, expand=True)
+
+        preview_controls = ttk.Frame(right_frame, padding=10)
+        preview_controls.pack(fill=tk.X)
+
+        self.prev_page_button = self.create_bubbly_button(preview_controls, "◀ Previous", self.show_previous_page)
+        self.prev_page_button.pack(side=tk.LEFT, padx=5)
+
+        self.next_page_button = self.create_bubbly_button(preview_controls, "Next ▶", self.show_next_page)
+        self.next_page_button.pack(side=tk.RIGHT, padx=5)
+
+        self.page_label = ttk.Label(preview_controls, text="Page: 0 / 0")
+        self.page_label.pack(side=tk.LEFT, expand=True)
+
+        self.current_preview_file = None
+        self.current_preview_page = 0
+        self.current_preview_doc = None
 
         self.update_report_listbox()
 
@@ -225,14 +258,15 @@ class PDFCompilerGUI:
     def update_pdf_info_display(self):
         self.pdf_info_text.delete('1.0', tk.END)
         for _, pdf_info in self.selected_files:
-            self.pdf_info_text.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)\n")
+            if pdf_info:
+                self.pdf_info_text.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)\n")
 
     def save_report(self):
         name = generate_space_name()
         page_selections = self.get_page_selections()
         if page_selections:
             use_cover_pages = self.use_cover_pages_var.get()
-            cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files)) if use_cover_pages else None
+            cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files if info)) if use_cover_pages else None
             report = Report(name, [file_path for file_path, _ in self.selected_files], page_selections, use_cover_pages, cover_pages)
             self.reports.append(report)
             self.save_reports_to_file()
@@ -285,7 +319,8 @@ class PDFCompilerGUI:
     def update_file_listbox(self):
         self.file_listbox.delete(0, tk.END)
         for _, pdf_info in self.selected_files:
-            self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
+            if pdf_info:
+                self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
 
     def update_report_listbox(self):
         self.report_listbox.delete(0, tk.END)
@@ -298,7 +333,10 @@ class PDFCompilerGUI:
     def update_cover_source_label(self):
         if self.use_cover_pages_var.get() and self.selected_files:
             _, file_info = self.selected_files[0]
-            self.cover_source_label.config(text=f"Cover Source: {file_info['file_name']} ({file_info['num_pages']} pages)")
+            if file_info:
+                self.cover_source_label.config(text=f"Cover Source: {file_info['file_name']} ({file_info['num_pages']} pages)")
+            else:
+                self.cover_source_label.config(text="Cover Source: None (0 pages)")
         else:
             self.cover_source_label.config(text="Cover Source: None (0 pages)")
 
@@ -310,12 +348,16 @@ class PDFCompilerGUI:
 
         selected_pages = {}
         for file_path, pdf_info in self.selected_files:
-            try:
-                page_list = parse_page_selection(page_input, pdf_info['num_pages'])
-                if page_list:
-                    selected_pages[file_path] = page_list
-            except ValueError as e:
-                messagebox.showwarning("Invalid Input", f"Error parsing pages for {pdf_info['file_name']}: {str(e)}")
+            if pdf_info:
+                try:
+                    page_list = parse_page_selection(page_input, pdf_info['num_pages'])
+                    if page_list:
+                        selected_pages[file_path] = page_list
+                except ValueError as e:
+                    messagebox.showwarning("Invalid Input", f"Error parsing pages for {pdf_info['file_name']}: {str(e)}")
+                    return None
+            else:
+                messagebox.showwarning("Invalid PDF", f"Error: Could not read PDF information for {file_path}")
                 return None
 
         return selected_pages
@@ -348,7 +390,7 @@ class PDFCompilerGUI:
         cover_pages = None
         if use_cover_pages:
             try:
-                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files))
+                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files if info))
             except ValueError as e:
                 messagebox.showwarning("Invalid Input", f"Error parsing cover pages: {str(e)}")
                 return
@@ -375,6 +417,44 @@ class PDFCompilerGUI:
         with socketserver.TCPServer(("", port), handler) as httpd:
             print(f"Serving at port {port}")
             httpd.serve_forever()
+
+    def on_file_select(self, event):
+        selection = self.file_listbox.curselection()
+        if selection:
+            index = selection[0]
+            file_path, _ = self.selected_files[index]
+            self.load_preview(file_path)
+
+    def load_preview(self, file_path):
+        self.current_preview_file = file_path
+        self.current_preview_page = 0
+        self.current_preview_doc = fitz.open(file_path)
+        self.update_preview()
+
+    def update_preview(self):
+        if self.current_preview_doc:
+            page = self.current_preview_doc[self.current_preview_page]
+            pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+            img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+            img = img.resize((400, int(400 * img.height / img.width)))
+            photo = ImageTk.PhotoImage(img)
+            
+            self.preview_canvas.delete("all")
+            self.preview_canvas.config(width=img.width, height=img.height)
+            self.preview_canvas.create_image(0, 0, anchor=tk.NW, image=photo)
+            self.preview_canvas.photo = photo  # Keep a reference to avoid garbage collection
+
+            self.page_label.config(text=f"Page: {self.current_preview_page + 1} / {len(self.current_preview_doc)}")
+
+    def show_previous_page(self):
+        if self.current_preview_doc and self.current_preview_page > 0:
+            self.current_preview_page -= 1
+            self.update_preview()
+
+    def show_next_page(self):
+        if self.current_preview_doc and self.current_preview_page < len(self.current_preview_doc) - 1:
+            self.current_preview_page += 1
+            self.update_preview()
 
 def main():
     root = tk.Tk()

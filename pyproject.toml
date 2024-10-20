@@ -6,6 +6,8 @@ requires-python = ">=3.11"
 dependencies = [
     "cairosvg>=2.7.1",
     "pillow>=11.0.0",
+    "pymupdf>=1.24.11",
     "pypdf2>=3.0.1",
     "pyqt5>=5.15.11",
+    "reportlab>=4.2.5",
 ]
