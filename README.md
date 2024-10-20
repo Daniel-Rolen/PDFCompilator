@@ -1,6 +1,10 @@
-# Super Fun PDF Compiler
+# The Binder
 
 A Python-based desktop application for PDF compilation with local file handling and a fun, user-friendly interface.
+
+## 🎨 Branding
+
+The Binder is represented by our lovable eyeball logo, symbolizing the watchful gaze that keeps your PDFs organized and bound together. Our mascot, Bindy the Eyeball, is always here to guide you through your PDF compilation journey!
 
 ## Features
 
@@ -19,8 +23,8 @@ A Python-based desktop application for PDF compilation with local file handling 
 
 1. Clone this repository:
    ```
-   git clone https://github.com/your-username/super-fun-pdf-compiler.git
-   cd super-fun-pdf-compiler
+   git clone https://github.com/your-username/the-binder.git
+   cd the-binder
    ```
 
 2. Install the required dependencies:
@@ -48,7 +52,7 @@ A Python-based desktop application for PDF compilation with local file handling 
 4. Compiling PDFs:
    - Click "Compile PDFs" to start the compilation process.
    - You'll be prompted to enter the pages you want to include from each PDF.
-   - The application will generate a fun, space-themed name for your output file.
+   - The Binder will generate a fun, space-themed name for your output file.
 
 5. Saving and Loading Reports:
    - Use "Save Report" to save your current compilation settings.

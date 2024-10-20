@@ -67,7 +67,7 @@ class BubblyStyle(ttk.Style):
 class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
-        self.master.title("Super Fun PDF Compiler!")
+        self.master.title("The Binder")
         self.master.geometry("700x800")
         
         self.style = BubblyStyle()
@@ -83,7 +83,7 @@ class PDFCompilerGUI:
         else:
             print(f'Icon file not found: {icon_path}')
         
-        self.selected_files = {}
+        self.selected_files = []
         self.output_folder = None
         self.reports = []
         self.load_reports_from_file()
@@ -112,6 +112,8 @@ class PDFCompilerGUI:
 
         self.create_bubbly_button(button_frame, "📁 Add PDF", self.add_pdf).pack(side=tk.LEFT, padx=5)
         self.create_bubbly_button(button_frame, "🗑️ Remove PDF", self.remove_pdf).pack(side=tk.LEFT, padx=5)
+        self.create_bubbly_button(button_frame, "⬆️ Move Up", self.move_pdf_up).pack(side=tk.LEFT, padx=5)
+        self.create_bubbly_button(button_frame, "⬇️ Move Down", self.move_pdf_down).pack(side=tk.LEFT, padx=5)
         self.create_bubbly_button(button_frame, "📂 Select Output Folder", self.select_output_folder).pack(side=tk.LEFT, padx=5)
         self.create_bubbly_button(button_frame, "💾 Save Report", self.save_report).pack(side=tk.LEFT, padx=5)
         self.create_bubbly_button(button_frame, "📤 Load Report", self.load_report).pack(side=tk.LEFT, padx=5)
@@ -163,7 +165,7 @@ class PDFCompilerGUI:
         for file_path in files:
             pdf_info = PDFCompiler.get_pdf_info(file_path)
             if pdf_info:
-                self.selected_files[file_path] = pdf_info
+                self.selected_files.append((file_path, pdf_info))
                 self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
         self.update_cover_source_label()
 
@@ -171,12 +173,27 @@ class PDFCompilerGUI:
         selection = self.file_listbox.curselection()
         if selection:
             index = selection[0]
-            file_path = list(self.selected_files.keys())[index]
-            del self.selected_files[file_path]
+            del self.selected_files[index]
             self.file_listbox.delete(index)
             self.update_cover_source_label()
-            print(f"Removed PDF: {file_path}")
+            print(f"Removed PDF at index: {index}")
             print(f"Remaining files: {self.selected_files}")
+
+    def move_pdf_up(self):
+        selection = self.file_listbox.curselection()
+        if selection and selection[0] > 0:
+            index = selection[0]
+            self.selected_files[index-1], self.selected_files[index] = self.selected_files[index], self.selected_files[index-1]
+            self.update_file_listbox()
+            self.file_listbox.selection_set(index-1)
+
+    def move_pdf_down(self):
+        selection = self.file_listbox.curselection()
+        if selection and selection[0] < len(self.selected_files) - 1:
+            index = selection[0]
+            self.selected_files[index], self.selected_files[index+1] = self.selected_files[index+1], self.selected_files[index]
+            self.update_file_listbox()
+            self.file_listbox.selection_set(index+1)
 
     def select_output_folder(self):
         self.output_folder = filedialog.askdirectory()
@@ -186,7 +203,7 @@ class PDFCompilerGUI:
             self.output_folder_label.config(text="Output Folder: none")
 
     def get_page_selections(self):
-        pdf_info = "\n".join([f"{info['file_name']} ({info['num_pages']} pages)" for info in self.selected_files.values()])
+        pdf_info = "\n".join([f"{info['file_name']} ({info['num_pages']} pages)" for _, info in self.selected_files])
         page_input = simpledialog.askstring("Select Pages", 
             f"Enter page numbers or ranges for all PDFs (comma-separated):\n"
             f"Example: 1,3,5-7,10-12\n\n"
@@ -196,7 +213,7 @@ class PDFCompilerGUI:
             return None
 
         selected_pages = {}
-        for file_path, pdf_info in self.selected_files.items():
+        for file_path, pdf_info in self.selected_files:
             try:
                 page_list = parse_page_selection(page_input, pdf_info['num_pages'])
                 if page_list:
@@ -213,8 +230,8 @@ class PDFCompilerGUI:
             page_selections = self.get_page_selections()
             if page_selections:
                 use_cover_pages = self.use_cover_pages_var.get()
-                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for info in self.selected_files.values())) if use_cover_pages else None
-                report = Report(name, list(self.selected_files.keys()), page_selections, use_cover_pages, cover_pages)
+                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files)) if use_cover_pages else None
+                report = Report(name, [file_path for file_path, _ in self.selected_files], page_selections, use_cover_pages, cover_pages)
                 self.reports.append(report)
                 self.save_reports_to_file()
                 self.update_report_listbox()
@@ -234,7 +251,7 @@ class PDFCompilerGUI:
         if selected_name:
             selected_report = next((report for report in self.reports if report.name == selected_name), None)
             if selected_report:
-                self.selected_files = {path: PDFCompiler.get_pdf_info(path) for path in selected_report.file_paths}
+                self.selected_files = [(path, PDFCompiler.get_pdf_info(path)) for path in selected_report.file_paths]
                 self.update_file_listbox()
                 self.use_cover_pages_var.set(selected_report.use_cover_pages)
                 self.cover_pages_entry.delete(0, tk.END)
@@ -263,7 +280,7 @@ class PDFCompilerGUI:
 
     def update_file_listbox(self):
         self.file_listbox.delete(0, tk.END)
-        for pdf_info in self.selected_files.values():
+        for _, pdf_info in self.selected_files:
             self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
 
     def update_report_listbox(self):
@@ -276,8 +293,7 @@ class PDFCompilerGUI:
 
     def update_cover_source_label(self):
         if self.use_cover_pages_var.get() and self.selected_files:
-            first_file = list(self.selected_files.keys())[0]
-            file_info = self.selected_files[first_file]
+            _, file_info = self.selected_files[0]
             self.cover_source_label.config(text=f"Cover Source: {file_info['file_name']} ({file_info['num_pages']} pages)")
         else:
             self.cover_source_label.config(text="Cover Source: None (0 pages)")
@@ -301,7 +317,7 @@ class PDFCompilerGUI:
         cover_pages = None
         if use_cover_pages:
             try:
-                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for info in self.selected_files.values()))
+                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for _, info in self.selected_files))
             except ValueError as e:
                 messagebox.showwarning("Invalid Input", f"Error parsing cover pages: {str(e)}")
                 return
@@ -309,7 +325,8 @@ class PDFCompilerGUI:
         output_filename = f"{generate_space_name()}.pdf"
         output_file = os.path.join(self.output_folder, output_filename)
 
-        if PDFCompiler.compile_pdfs(list(self.selected_files.keys()), page_selections, output_file, use_cover_pages, cover_pages):
+        input_files = [file_path for file_path, _ in self.selected_files]
+        if PDFCompiler.compile_pdfs(input_files, page_selections, output_file, use_cover_pages, cover_pages):
             messagebox.showinfo("Success", f"PDFs compiled successfully.\nOutput file: {output_file}")
         else:
             messagebox.showerror("Error", "Failed to compile PDFs. Please try again.")
