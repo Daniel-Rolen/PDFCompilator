@@ -3,6 +3,22 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 from pdf_compiler import PDFCompiler
 
+def parse_page_selection(pages_str, max_pages):
+    pages = set()
+    for part in pages_str.split(','):
+        part = part.strip()
+        try:
+            if '-' in part:
+                start, end = map(int, part.split('-'))
+                if start > end:
+                    raise ValueError(f"Invalid range: {start}-{end}")
+                pages.update(range(start, end + 1))
+            else:
+                pages.add(int(part))
+        except ValueError:
+            raise ValueError(f"Invalid input: {part}")
+    return sorted([p for p in pages if 1 <= p <= max_pages])
+
 class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
@@ -62,14 +78,18 @@ class PDFCompilerGUI:
         selected_pages = {}
         for file_path, pdf_info in self.selected_files.items():
             pages = simpledialog.askstring(f"Select pages for {pdf_info['file_name']}",
-                                           f"Enter page numbers (1-{pdf_info['num_pages']}, comma-separated):")
+                                           f"Enter page numbers or ranges (1-{pdf_info['num_pages']}, comma-separated):\n"
+                                           f"Example: 1,3,5-7,10-12")
             if pages:
                 try:
-                    page_list = [int(p.strip()) for p in pages.split(',') if 1 <= int(p.strip()) <= pdf_info['num_pages']]
+                    page_list = parse_page_selection(pages, pdf_info['num_pages'])
                     if page_list:
                         selected_pages[file_path] = page_list
-                except ValueError:
-                    messagebox.showwarning("Invalid Input", "Please enter valid page numbers.")
+                    else:
+                        messagebox.showwarning("Invalid Input", f"No valid pages selected for {pdf_info['file_name']}.")
+                        return
+                except ValueError as e:
+                    messagebox.showwarning("Invalid Input", f"Error parsing pages for {pdf_info['file_name']}: {str(e)}")
                     return
 
         if not selected_pages:
