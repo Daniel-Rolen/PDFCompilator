@@ -46,6 +46,9 @@ The Binder relies on the following Python libraries:
 7. Flask: Web framework used for the backend API.
    - Installation: `pip install flask`
 
+8. PyMuPDF (fitz): Used for PDF processing.
+   - Installation: `pip install PyMuPDF`
+
 ## Installation
 
 1. Clone this repository:
@@ -57,7 +60,7 @@ The Binder relies on the following Python libraries:
 2. Install the required dependencies:
    ```
    pip install -r requirements.txt
-   pip install flask  # Ensure Flask is installed
+   pip install flask PyMuPDF
    ```
 
 ## Usage
@@ -98,10 +101,10 @@ Note: The table of contents functionality is integrated with the cover page sett
 2. The Electron app is currently failing to start due to a missing shared library (libxshmfence.so.1).
 3. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
 4. The "Remove PDF" button functionality is inconsistent.
-5. Flask module not found: Ensure Flask is installed properly using `pip install flask`.
-6. Some features are still not fully implemented, such as actual PDF compilation and file handling.
-7. Need to implement functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
-8. Space in file names may cause issues with PDF compilation and handling.
+5. Some features are still not fully implemented, such as actual PDF compilation and file handling.
+6. Need to implement functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
+7. Space in file names may cause issues with PDF compilation and handling.
+8. ModuleNotFoundError: No module named 'frontend' when running main.py. This might be due to a missing or incorrectly installed dependency.
 
 ## Current Status
 

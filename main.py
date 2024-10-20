@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify, request, send_from_directory
 import os
 import json
 from pdf_compiler import compile_pdfs
-from name_generator import generate_space_name as generate_name
+from name_generator import generate_space_name
 
 app = Flask(__name__)
 
@@ -37,7 +37,7 @@ def remove_pdf():
 def compile_pdf():
     use_cover_pages = request.json.get('useCoverPages', False)
     cover_pages = request.json.get('coverPages', '')
-    output_filename = generate_name() + ".pdf"
+    output_filename = generate_space_name() + ".pdf"
     output_path = os.path.join("output", output_filename)
     
     try:
