@@ -16,13 +16,20 @@
         <div id="content">
             <h1>The Binder</h1>
             <div id="controls">
-                <input type="text" id="pdfName" placeholder="Enter PDF name" class="neon-element">
-                <button id="addPdf" class="neon-element">Add PDF</button>
-                <button id="removePdf" class="neon-element">Remove PDF</button>
-                <button id="compilePdf" class="neon-element">Compile PDF</button>
-                <button id="selectOutputFolder" class="neon-element">Select Output Folder</button>
-                <button id="saveReport" class="neon-element">Save Report</button>
-                <button id="loadReport" class="neon-element">Load Report</button>
+                <input type="text" id="pdfName" placeholder="Enter PDF name" class="neon-element bubble-element">
+                <button id="addPdf" class="neon-element bubble-element">Add PDF</button>
+                <button id="removePdf" class="neon-element bubble-element">Remove PDF</button>
+                <button id="compilePdf" class="neon-element bubble-element">Compile PDF</button>
+                <button id="selectOutputFolder" class="neon-element bubble-element">Select Output Folder</button>
+                <button id="saveReport" class="neon-element bubble-element">Save Report</button>
+                <button id="loadReport" class="neon-element bubble-element">Load Report</button>
+                <div class="toggle-container">
+                    <label class="switch bubble-element">
+                        <input type="checkbox" id="useCoverPages">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>Use Cover Page</span>
+                </div>
             </div>
             <div id="pdfSections">
                 <div id="selectedFiles">
@@ -36,9 +43,7 @@
             </div>
             <div id="coverPageSettings">
                 <h2>Cover Page Settings</h2>
-                <input type="checkbox" id="useCoverPages" class="neon-element">
-                <label for="useCoverPages">Use cover pages</label>
-                <input type="text" id="coverPages" placeholder="Enter cover page numbers (e.g., 1,2,3-5)" class="neon-element">
+                <input type="text" id="coverPages" placeholder="Enter cover page numbers (e.g., 1,2,3-5)" class="neon-element bubble-element">
             </div>
         </div>
     </div>

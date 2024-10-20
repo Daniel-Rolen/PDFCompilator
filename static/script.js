@@ -8,15 +8,15 @@ canvas.height = window.innerHeight;
 
 // Particle properties
 const particles = [];
-const particleCount = 50; // Reduced from 100 to 50 for better performance
+const particleCount = 30; // Reduced from 50 to 30 for better performance
 
 class Particle {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.size = Math.random() * 2 + 1;
-        this.speedX = Math.random() * 2 - 1; // Reduced speed range
-        this.speedY = Math.random() * 2 - 1; // Reduced speed range
+        this.speedX = Math.random() * 1 - 0.5; // Reduced speed range
+        this.speedY = Math.random() * 1 - 0.5; // Reduced speed range
         this.color = `hsl(${Math.random() * 60 + 180}, 100%, 50%)`;
     }
 
@@ -46,29 +46,37 @@ for (let i = 0; i < particleCount; i++) {
 }
 
 let animationFrameId;
+let lastTime = 0;
+const targetFPS = 30;
+const frameInterval = 1000 / targetFPS;
 
-function animate() {
+function animate(currentTime) {
+    animationFrameId = requestAnimationFrame(animate);
+
+    const deltaTime = currentTime - lastTime;
+    if (deltaTime < frameInterval) return;
+
+    lastTime = currentTime - (deltaTime % frameInterval);
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     particles.forEach(particle => {
         particle.update();
         particle.draw();
     });
-    animationFrameId = requestAnimationFrame(animate);
 }
 
-animate();
+animate(0);
 
 // Cybernetic eyeball animation
 const eyeballs = document.querySelectorAll('.eyeball');
 let lastEyeballUpdate = 0;
-const eyeballUpdateInterval = 100; // Update every 100ms
+const eyeballUpdateInterval = 200; // Update every 200ms for better performance
 
 function animateEyeballs(timestamp) {
     if (timestamp - lastEyeballUpdate > eyeballUpdateInterval) {
         eyeballs.forEach(eyeball => {
-            const pupil = eyeball.querySelector('.eyeball::after');
             const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * 10;
+            const distance = Math.random() * 5; // Reduced distance for subtler movement
             const x = Math.cos(angle) * distance;
             const y = Math.sin(angle) * distance;
             
@@ -83,48 +91,58 @@ function animateEyeballs(timestamp) {
 
 animateEyeballs(0);
 
-// Glitch effect for neon elements
+// Bubble animation
+function createBubble() {
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.style.left = `${Math.random() * 100}%`;
+    bubble.style.width = `${Math.random() * 50 + 10}px`;
+    bubble.style.height = bubble.style.width;
+    bubble.style.animationDuration = `${Math.random() * 5 + 5}s`;
+    document.body.appendChild(bubble);
+
+    bubble.addEventListener('animationend', () => {
+        bubble.remove();
+    });
+}
+
+// Create bubbles at a controlled rate
+setInterval(createBubble, 1000);
+
+// Glitch effect for neon elements (optimized)
 class GlitchEffect {
     constructor(element) {
         this.element = element;
         this.originalText = element.textContent;
-        this.glitchInterval = null;
-        this.glitchDuration = 100;
-        this.glitchCooldown = 5000;
-
-        this.element.addEventListener('mouseenter', () => this.startGlitch());
-        this.element.addEventListener('mouseleave', () => this.stopGlitch());
+        this.isGlitching = false;
     }
 
     startGlitch() {
-        if (this.glitchInterval) return;
-
-        this.glitchInterval = setInterval(() => {
-            this.element.textContent = this.generateGlitchedText();
-            setTimeout(() => {
-                this.element.textContent = this.originalText;
-            }, this.glitchDuration);
-        }, this.glitchCooldown);
+        if (this.isGlitching) return;
+        this.isGlitching = true;
+        this.glitchInterval = setInterval(() => this.applyGlitch(), 100);
     }
 
     stopGlitch() {
         clearInterval(this.glitchInterval);
-        this.glitchInterval = null;
+        this.isGlitching = false;
         this.element.textContent = this.originalText;
     }
 
-    generateGlitchedText() {
+    applyGlitch() {
         const glitchChars = '!@#$%^&*()_+-={}[]|;:,.<>?';
-        return this.originalText
+        this.element.textContent = this.originalText
             .split('')
-            .map(char => Math.random() > 0.7 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char)
+            .map(char => Math.random() > 0.9 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char)
             .join('');
     }
 }
 
 // Apply GlitchEffect to neon elements
 document.querySelectorAll('.neon-element').forEach(element => {
-    new GlitchEffect(element);
+    const glitch = new GlitchEffect(element);
+    element.addEventListener('mouseenter', () => glitch.startGlitch());
+    element.addEventListener('mouseleave', () => glitch.stopGlitch());
 });
 
 // PDF management functionality
@@ -149,7 +167,7 @@ function updatePdfLists() {
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
-                li.classList.add('neon-element');
+                li.classList.add('neon-element', 'bubble-element');
                 selectedFilesList.appendChild(li);
                 new GlitchEffect(li);
             });
@@ -157,7 +175,7 @@ function updatePdfLists() {
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
-                li.classList.add('neon-element');
+                li.classList.add('neon-element', 'bubble-element');
                 availableFilesList.appendChild(li);
                 new GlitchEffect(li);
             });
@@ -276,13 +294,13 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
-// Screen flicker effect
+// Screen flicker effect (optimized)
 function screenFlicker() {
     const app = document.getElementById('app');
-    app.style.opacity = Math.random() * 0.1 + 0.9;
+    app.style.opacity = Math.random() * 0.05 + 0.95; // Reduced flicker intensity
     setTimeout(() => {
         app.style.opacity = 1;
     }, 50);
 }
 
-setInterval(screenFlicker, 5000);
+setInterval(screenFlicker, 8000); // Reduced frequency for better performance
