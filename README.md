@@ -80,7 +80,16 @@ The Binder relies on the following Python libraries:
    - Use "Save Report" to save your current compilation settings.
    - Use "Load Report" to recall previously saved settings.
 
+6. The Binder's Cosmic Collection:
+   - View the list of PDFs you've added to your compilation project.
+   - This section displays file names and page counts for easy reference.
+
 Note: The table of contents functionality is integrated with the cover page settings and page selection. By carefully selecting cover pages and content pages, you can effectively create a table of contents for your compiled PDF.
+
+## Known Issues
+
+1. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
+2. The "Remove PDF" button functionality is inconsistent.
 
 ## License
 
