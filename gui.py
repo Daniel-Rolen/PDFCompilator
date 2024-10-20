@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 from pdf_compiler import PDFCompiler
 from name_generator import generate_space_name
+import json
 
 def parse_page_selection(pages_str, max_pages):
     pages = set()
@@ -20,6 +21,12 @@ def parse_page_selection(pages_str, max_pages):
             raise ValueError(f"Invalid input: {part}")
     return sorted([p for p in pages if 1 <= p <= max_pages])
 
+class Report:
+    def __init__(self, name, file_paths, page_selections):
+        self.name = name
+        self.file_paths = file_paths
+        self.page_selections = page_selections
+
 class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
@@ -28,6 +35,8 @@ class PDFCompilerGUI:
 
         self.selected_files = {}
         self.output_folder = None
+        self.reports = []
+        self.load_reports_from_file()
         self.init_ui()
 
     def init_ui(self):
@@ -55,6 +64,12 @@ class PDFCompilerGUI:
 
         select_output_button = tk.Button(button_frame, text="Select Output Folder", command=self.select_output_folder)
         select_output_button.pack(side=tk.LEFT, padx=5)
+
+        save_report_button = tk.Button(button_frame, text="Save Report", command=self.save_report)
+        save_report_button.pack(side=tk.LEFT, padx=5)
+
+        load_report_button = tk.Button(button_frame, text="Load Report", command=self.load_report)
+        load_report_button.pack(side=tk.LEFT, padx=5)
 
         compile_button = tk.Button(self.master, text="Compile PDFs", command=self.compile_pdfs)
         compile_button.pack(pady=10)
@@ -102,7 +117,53 @@ class PDFCompilerGUI:
 
         return selected_pages
 
-    def compile_pdfs(self):
+    def save_report(self):
+        name = simpledialog.askstring("Save Report", "Enter a name for this report:")
+        if name:
+            page_selections = self.get_page_selections()
+            if page_selections:
+                report = Report(name, list(self.selected_files.keys()), page_selections)
+                self.reports.append(report)
+                self.save_reports_to_file()
+                messagebox.showinfo("Report Saved", f"Report '{name}' has been saved.")
+            else:
+                messagebox.showwarning("Invalid Input", "Please select valid pages before saving the report.")
+
+    def load_report(self):
+        if not self.reports:
+            messagebox.showinfo("No Reports", "No saved reports found.")
+            return
+
+        report_names = [report.name for report in self.reports]
+        selected_name = simpledialog.askstring("Load Report", "Select a report to load:", initialvalue=report_names[0])
+        
+        if selected_name:
+            selected_report = next((report for report in self.reports if report.name == selected_name), None)
+            if selected_report:
+                self.selected_files = {path: PDFCompiler.get_pdf_info(path) for path in selected_report.file_paths}
+                self.update_file_listbox()
+                self.compile_pdfs(selected_report.page_selections)
+            else:
+                messagebox.showerror("Error", "Selected report not found.")
+
+    def save_reports_to_file(self):
+        with open('reports.json', 'w') as f:
+            json.dump([report.__dict__ for report in self.reports], f)
+
+    def load_reports_from_file(self):
+        try:
+            with open('reports.json', 'r') as f:
+                report_data = json.load(f)
+                self.reports = [Report(**data) for data in report_data]
+        except FileNotFoundError:
+            self.reports = []
+
+    def update_file_listbox(self):
+        self.file_listbox.delete(0, tk.END)
+        for pdf_info in self.selected_files.values():
+            self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
+
+    def compile_pdfs(self, page_selections=None):
         if not self.selected_files:
             messagebox.showwarning("No PDFs", "Please add PDF files before compiling.")
             return
@@ -112,14 +173,15 @@ class PDFCompilerGUI:
             if not self.output_folder:
                 return
 
-        selected_pages = self.get_page_selections()
-        if not selected_pages:
+        if page_selections is None:
+            page_selections = self.get_page_selections()
+        if not page_selections:
             return
 
         output_filename = f"{generate_space_name()}.pdf"
         output_file = os.path.join(self.output_folder, output_filename)
 
-        if PDFCompiler.compile_pdfs(self.selected_files.keys(), selected_pages, output_file):
+        if PDFCompiler.compile_pdfs(self.selected_files.keys(), page_selections, output_file):
             messagebox.showinfo("Success", f"PDFs compiled successfully.\nOutput file: {output_file}")
         else:
             messagebox.showerror("Error", "Failed to compile PDFs. Please try again.")
