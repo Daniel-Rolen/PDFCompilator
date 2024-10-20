@@ -115,6 +115,8 @@ Note: The table of contents functionality is integrated with the cover page sett
 7. Space in file names may cause issues with PDF compilation and handling.
 8. ModuleNotFoundError: No module named 'frontend' when running main.py. This might be due to a missing or incorrectly installed dependency.
 9. ModuleNotFoundError: No module named '_tkinter' when running main.py. This is likely due to tkinter not being installed or properly configured.
+10. On lower-end devices, the animated background and UI effects may cause slight performance issues. The number of particles and animation frequencies have been reduced to mitigate this, but further optimization may be necessary for very low-end devices.
+11. The shiny, reflective surface effect on UI elements may not be visible on devices with lower screen resolutions or older graphics cards.
 
 ## Current Status
 
@@ -128,9 +130,11 @@ We have successfully implemented the initial prototype with a cyberpunk-inspired
 2. Animated background and UI elements:
    - A subtle screen flicker effect has been added to enhance the cyberpunk feel.
    - Buttons and other UI elements now have glitch effects and neon glow animations.
+   - Shiny, bubbly surfaces have been added to UI elements with subtle animations.
 
 3. Performance optimization:
-   - Initial implementation of animations and effects is complete, but further optimization is needed.
+   - Animations and effects have been optimized for better performance on lower-end devices.
+   - The number of particles, animation frequencies, and effect intensities have been adjusted for a balance between visual appeal and performance.
 
 4. PDF compilation functionality:
    - Basic backend functionality for PDF compilation has been implemented using PyPDF2.
@@ -144,10 +148,10 @@ We have successfully implemented the initial prototype with a cyberpunk-inspired
    - Users can enable cover pages and specify page numbers for cover pages.
    - Save and load report functionality has been implemented.
 
-The current focus is on optimizing performance for smoother animations, especially on lower-end devices, and completing the integration of PDF compilation functionality with the frontend.
+The current focus is on further optimizing performance for smoother animations, especially on lower-end devices, and completing the integration of PDF compilation functionality with the frontend.
 
 Next steps include:
-1. Optimizing the performance of animations and effects.
+1. Further optimizing the performance of animations and effects for very low-end devices.
 2. Completing the integration of PDF compilation functionality with the frontend.
 3. Implementing file selection for modifying page ranges of specific PDFs.
 4. Enhancing the interactivity of UI elements.
@@ -158,6 +162,8 @@ Next steps include:
 ## Future Improvements
 
 1. Implement better management of report patterns for compilations directly within the application.
+2. Add a low-performance mode for devices that struggle with the current animations and effects.
+3. Implement progressive enhancement for the shiny, reflective surface effects to ensure compatibility with a wider range of devices.
 
 ## License
 
