@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 from pdf_compiler import PDFCompiler
+from name_generator import generate_space_name
 
 def parse_page_selection(pages_str, max_pages):
     pages = set()
@@ -26,6 +27,7 @@ class PDFCompilerGUI:
         self.master.geometry("600x400")
 
         self.selected_files = {}
+        self.output_folder = None
         self.init_ui()
 
     def init_ui(self):
@@ -51,6 +53,9 @@ class PDFCompilerGUI:
         remove_button = tk.Button(button_frame, text="Remove PDF", command=self.remove_pdf)
         remove_button.pack(side=tk.LEFT, padx=5)
 
+        select_output_button = tk.Button(button_frame, text="Select Output Folder", command=self.select_output_folder)
+        select_output_button.pack(side=tk.LEFT, padx=5)
+
         compile_button = tk.Button(self.master, text="Compile PDFs", command=self.compile_pdfs)
         compile_button.pack(pady=10)
 
@@ -69,6 +74,11 @@ class PDFCompilerGUI:
             file_path = list(self.selected_files.keys())[selection[0]]
             del self.selected_files[file_path]
             self.file_listbox.delete(selection[0])
+
+    def select_output_folder(self):
+        self.output_folder = filedialog.askdirectory()
+        if self.output_folder:
+            messagebox.showinfo("Output Folder", f"Selected output folder: {self.output_folder}")
 
     def get_page_selections(self):
         pdf_info = "\n".join([f"{info['file_name']} ({info['num_pages']} pages)" for info in self.selected_files.values()])
@@ -97,16 +107,22 @@ class PDFCompilerGUI:
             messagebox.showwarning("No PDFs", "Please add PDF files before compiling.")
             return
 
+        if not self.output_folder:
+            self.select_output_folder()
+            if not self.output_folder:
+                return
+
         selected_pages = self.get_page_selections()
         if not selected_pages:
             return
 
-        output_file = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF Files", "*.pdf")])
-        if output_file:
-            if PDFCompiler.compile_pdfs(self.selected_files.keys(), selected_pages, output_file):
-                messagebox.showinfo("Success", "PDFs compiled successfully.")
-            else:
-                messagebox.showerror("Error", "Failed to compile PDFs. Please try again.")
+        output_filename = f"{generate_space_name()}.pdf"
+        output_file = os.path.join(self.output_folder, output_filename)
+
+        if PDFCompiler.compile_pdfs(self.selected_files.keys(), selected_pages, output_file):
+            messagebox.showinfo("Success", f"PDFs compiled successfully.\nOutput file: {output_file}")
+        else:
+            messagebox.showerror("Error", "Failed to compile PDFs. Please try again.")
 
 def main():
     root = tk.Tk()
