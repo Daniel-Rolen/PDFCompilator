@@ -5,6 +5,7 @@ from tkinter.font import Font
 from pdf_compiler import PDFCompiler
 from name_generator import generate_space_name
 import json
+from PIL import Image, ImageTk
 
 def parse_page_selection(pages_str, max_pages):
     pages = set()
@@ -30,39 +31,52 @@ class Report:
         self.use_cover_pages = use_cover_pages
         self.cover_pages = cover_pages
 
-class BubblyButton(ttk.Button):
-    def __init__(self, master=None, **kw):
-        ttk.Button.__init__(self, master, style="Bubbly.TButton", **kw)
-        self.style = ttk.Style()
-        self.style.configure("Bubbly.TButton", padding=10, relief="raised", borderwidth=4)
-        self.style.map("Bubbly.TButton",
-                       foreground=[('pressed', 'white'), ('active', 'white')],
-                       background=[('pressed', '!disabled', '#3c9f40'), ('active', '#45a049')])
+class BubblyStyle(ttk.Style):
+    def __init__(self):
+        super().__init__()
+        self.theme_use('clam')
+        
+        # Colors
+        self.bg_color = "#FF69B4"  # Hot pink
+        self.fg_color = "#00FF00"  # Lime green
+        self.accent_color = "#FFD700"  # Gold
+        
+        # Configure styles
+        self.configure("TFrame", background=self.bg_color)
+        self.configure("TButton", 
+                       background=self.fg_color, 
+                       foreground="white", 
+                       font=("Comic Sans MS", 12, "bold"), 
+                       borderwidth=0, 
+                       padding=10)
+        self.map("TButton", 
+                 background=[("active", self.accent_color)],
+                 relief=[("pressed", "sunken")])
+        
+        # Rounded corners for buttons
+        self.layout("TButton", [
+            ("Button.padding", {"children": [
+                ("Button.label", {"side": "left", "expand": 1})
+            ], "sticky": "nswe"})
+        ])
+        
+        self.configure("TLabel", background=self.bg_color, foreground=self.fg_color, font=("Comic Sans MS", 12))
+        self.configure("TCheckbutton", background=self.bg_color, foreground=self.fg_color, font=("Comic Sans MS", 12))
+        self.configure("Listbox", background="#FFE5EC", foreground=self.fg_color, font=("Comic Sans MS", 12), borderwidth=0)
 
 class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
-        self.master.title("PDF Compiler")
-        self.master.geometry("600x750")  # Increased height to accommodate new sections
-
-        self.style = ttk.Style()
-        self.style.theme_use('clam')  # 'clam' theme works well for customization
+        self.master.title("Super Fun PDF Compiler!")
+        self.master.geometry("700x800")
         
-        # Define colors
-        self.bg_color = "#FFD1DC"  # Light pink
-        self.fg_color = "#4CAF50"  # Green
+        self.style = BubblyStyle()
         
-        # Configure styles
-        self.style.configure("TFrame", background=self.bg_color)
-        self.style.configure("TButton", background=self.fg_color, foreground="white", font=("Arial", 10, "bold"), borderwidth=0)
-        self.style.map("TButton", background=[("active", "#45a049")])
-        self.style.configure("TLabel", background=self.bg_color, foreground=self.fg_color, font=("Arial", 10))
-        self.style.configure("TCheckbutton", background=self.bg_color, foreground=self.fg_color)
-        self.style.configure("Bubbly.TListbox", background="#FFE5EC", foreground=self.fg_color, borderwidth=0, font=("Arial", 10))
+        # Load and display cute PDF icon
+        self.pdf_icon = ImageTk.PhotoImage(Image.open("assets/app_icon.svg").resize((50, 50)))
+        icon_label = ttk.Label(self.master, image=self.pdf_icon, background=self.style.bg_color)
+        icon_label.pack(pady=10)
         
-        # Set window background
-        self.master.configure(bg=self.bg_color)
-
         self.selected_files = {}
         self.output_folder = None
         self.reports = []
@@ -70,11 +84,16 @@ class PDFCompilerGUI:
         self.init_ui()
 
     def init_ui(self):
-        # File selection
-        file_frame = ttk.Frame(self.master)
-        file_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame = ttk.Frame(self.master, padding=20)
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.file_listbox = tk.Listbox(file_frame, width=50, bg="#FFE5EC", fg=self.fg_color, font=("Arial", 10))
+        # File selection
+        file_frame = ttk.Frame(main_frame, padding=10)
+        file_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        ttk.Label(file_frame, text="Selected PDFs:", font=("Comic Sans MS", 14, "bold")).pack(anchor=tk.W)
+
+        self.file_listbox = tk.Listbox(file_frame, width=50, height=10, bg="#FFE5EC", fg=self.style.fg_color, font=("Comic Sans MS", 12))
         self.file_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         scrollbar = ttk.Scrollbar(file_frame, orient=tk.VERTICAL)
@@ -83,54 +102,43 @@ class PDFCompilerGUI:
 
         self.file_listbox.config(yscrollcommand=scrollbar.set)
 
-        button_frame = ttk.Frame(self.master)
-        button_frame.pack(fill=tk.X, padx=10, pady=5)
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X, pady=10)
 
-        add_button = BubblyButton(button_frame, text="Add PDF", command=self.add_pdf)
-        add_button.pack(side=tk.LEFT, padx=5)
-
-        remove_button = BubblyButton(button_frame, text="Remove PDF", command=self.remove_pdf)
-        remove_button.pack(side=tk.LEFT, padx=5)
-
-        select_output_button = BubblyButton(button_frame, text="Select Output Folder", command=self.select_output_folder)
-        select_output_button.pack(side=tk.LEFT, padx=5)
-
-        save_report_button = BubblyButton(button_frame, text="Save Report", command=self.save_report)
-        save_report_button.pack(side=tk.LEFT, padx=5)
-
-        load_report_button = BubblyButton(button_frame, text="Load Report", command=self.load_report)
-        load_report_button.pack(side=tk.LEFT, padx=5)
+        self.create_bubbly_button(button_frame, "📁 Add PDF", self.add_pdf).pack(side=tk.LEFT, padx=5)
+        self.create_bubbly_button(button_frame, "🗑️ Remove PDF", self.remove_pdf).pack(side=tk.LEFT, padx=5)
+        self.create_bubbly_button(button_frame, "📂 Select Output Folder", self.select_output_folder).pack(side=tk.LEFT, padx=5)
+        self.create_bubbly_button(button_frame, "💾 Save Report", self.save_report).pack(side=tk.LEFT, padx=5)
+        self.create_bubbly_button(button_frame, "📤 Load Report", self.load_report).pack(side=tk.LEFT, padx=5)
 
         # Cover pages section
-        cover_frame = ttk.Frame(self.master)
-        cover_frame.pack(fill=tk.X, padx=10, pady=5)
+        cover_frame = ttk.Frame(main_frame, padding=10)
+        cover_frame.pack(fill=tk.X, pady=10)
 
         self.use_cover_pages_var = tk.BooleanVar()
-        self.use_cover_pages_check = ttk.Checkbutton(cover_frame, text="Use cover pages", variable=self.use_cover_pages_var, command=self.update_cover_source_label)
-        self.use_cover_pages_check.pack(side=tk.LEFT)
+        ttk.Checkbutton(cover_frame, text="Use cover pages", variable=self.use_cover_pages_var, command=self.update_cover_source_label).pack(side=tk.LEFT)
 
         ttk.Label(cover_frame, text="Cover pages:").pack(side=tk.LEFT, padx=(10, 0))
-        self.cover_pages_entry = ttk.Entry(cover_frame, width=20)
+        self.cover_pages_entry = ttk.Entry(cover_frame, width=20, font=("Comic Sans MS", 12))
         self.cover_pages_entry.pack(side=tk.LEFT, padx=5)
         ttk.Label(cover_frame, text="(e.g., 1,2,3-5)").pack(side=tk.LEFT)
 
         self.cover_source_label = ttk.Label(cover_frame, text="Cover Source: None (0 pages)")
         self.cover_source_label.pack(side=tk.BOTTOM, pady=5)
 
-        compile_button = BubblyButton(self.master, text="Compile PDFs", command=self.compile_pdfs)
-        compile_button.pack(pady=10)
+        self.create_bubbly_button(main_frame, "🚀 Compile PDFs", self.compile_pdfs).pack(pady=10)
 
         # Output folder display
-        self.output_folder_label = ttk.Label(self.master, text="Output Folder: none")
+        self.output_folder_label = ttk.Label(main_frame, text="Output Folder: none", wraplength=600)
         self.output_folder_label.pack(pady=5)
 
         # Saved reports section
-        report_frame = ttk.Frame(self.master)
-        report_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        report_frame = ttk.Frame(main_frame, padding=10)
+        report_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
-        ttk.Label(report_frame, text="Saved Reports:").pack(anchor=tk.W)
+        ttk.Label(report_frame, text="Saved Reports:", font=("Comic Sans MS", 14, "bold")).pack(anchor=tk.W)
 
-        self.report_listbox = tk.Listbox(report_frame, width=50, bg="#FFE5EC", fg=self.fg_color, font=("Arial", 10))
+        self.report_listbox = tk.Listbox(report_frame, width=50, height=5, bg="#FFE5EC", fg=self.style.fg_color, font=("Comic Sans MS", 12))
         self.report_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         report_scrollbar = ttk.Scrollbar(report_frame, orient=tk.VERTICAL)
@@ -140,6 +148,12 @@ class PDFCompilerGUI:
         self.report_listbox.config(yscrollcommand=report_scrollbar.set)
 
         self.update_report_listbox()
+
+    def create_bubbly_button(self, parent, text, command):
+        button = ttk.Button(parent, text=text, command=command, style="TButton")
+        button.bind("<Enter>", lambda e: e.widget.configure(cursor="hand2"))
+        button.bind("<Leave>", lambda e: e.widget.configure(cursor=""))
+        return button
 
     def add_pdf(self):
         files = filedialog.askopenfilenames(filetypes=[("PDF Files", "*.pdf")])
