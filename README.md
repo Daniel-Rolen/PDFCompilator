@@ -101,13 +101,25 @@ Note: The table of contents functionality is integrated with the cover page sett
 5. Flask module not found: Ensure Flask is installed properly using `pip install flask`.
 6. Buttons are missing from the GUI.
 7. Files selected and files available sections are absent from the GUI.
-8. The styling needs significant development to resemble a cross between cyberpunk and zef culture.
-9. Maintain the neon color palette throughout the interface.
-10. Implement spooky, looking-around animations for the eyeball mascots.
+8. The interface now follows a cyberpunk and zef-inspired aesthetic with neon colors and glitch effects.
+9. Animated background with floating particles has been implemented.
+10. Buttons and UI elements have been redesigned with angular, polygon-based shapes.
+11. Eyeball mascots have been updated to look more robotic or cybernetic.
+12. A subtle screen flicker effect has been added to enhance the cyberpunk feel.
+13. Performance issues may occur with the new animations on lower-end devices.
+14. Compatibility issues across different browsers or devices may exist due to the advanced CSS and JavaScript effects.
+15. Some features are still not fully implemented, such as actual PDF compilation and file handling.
 
 ## Current Status
 
-We are currently working on implementing animated GUI elements using Electron.js while maintaining the existing Python backend functionality. The focus is on addressing the known issues and enhancing the user interface to match the desired cyberpunk and zef culture aesthetic.
+We have successfully implemented the initial prototype with a cyberpunk-inspired GUI using Electron.js. The interface now features neon colors, glitch effects, and animated elements that align with the desired cyberpunk and zef culture aesthetic. The current focus is on optimizing performance for smoother animations, especially on lower-end devices, and adding more interactive elements to enhance user experience.
+
+The next steps include:
+1. Optimizing the performance of animations and effects.
+2. Implementing the core PDF compilation functionality.
+3. Enhancing the interactivity of UI elements.
+4. Ensuring cross-platform compatibility.
+5. Integrating the backend Python functionality with the new Electron.js frontend.
 
 ## License
 
