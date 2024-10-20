@@ -128,6 +128,54 @@ function animateEyeballs() {
 
 animateEyeballs();
 
+// New BalloonElement class for buttons, sections, and window frames
+class BalloonElement {
+    constructor(element) {
+        this.element = element;
+        this.originalScale = 1;
+        this.inflated = false;
+        this.wobbleOffset = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = Math.random() * 0.02 + 0.01;
+
+        this.element.addEventListener('mouseenter', () => this.inflate());
+        this.element.addEventListener('mouseleave', () => this.deflate());
+        this.element.addEventListener('click', () => this.wobble());
+
+        this.animate();
+    }
+
+    inflate() {
+        this.inflated = true;
+        this.element.style.transform = `scale(1.05)`;
+    }
+
+    deflate() {
+        this.inflated = false;
+        this.element.style.transform = `scale(1)`;
+    }
+
+    wobble() {
+        this.element.style.animation = 'wobble 0.8s ease-in-out';
+        this.element.addEventListener('animationend', () => {
+            this.element.style.animation = '';
+        }, { once: true });
+    }
+
+    animate() {
+        if (!this.inflated) {
+            this.wobbleOffset += this.wobbleSpeed;
+            const wobbleAmount = Math.sin(this.wobbleOffset) * 2;
+            this.element.style.transform = `translateY(${wobbleAmount}px)`;
+        }
+        requestAnimationFrame(() => this.animate());
+    }
+}
+
+// Apply BalloonElement behavior to relevant elements
+document.querySelectorAll('.balloon-element').forEach(element => {
+    new BalloonElement(element);
+});
+
 // PDF management functionality
 const addPdfButton = document.getElementById('addPdf');
 const removePdfButton = document.getElementById('removePdf');
@@ -150,14 +198,17 @@ function updatePdfLists() {
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
+                li.classList.add('balloon-element');
                 selectedFilesList.appendChild(li);
+                new BalloonElement(li);
             });
             // For now, we'll just duplicate the selected files in the available files list
-            // In a real application, you'd fetch available files separately
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
+                li.classList.add('balloon-element');
                 availableFilesList.appendChild(li);
+                new BalloonElement(li);
             });
         });
 }
@@ -218,22 +269,22 @@ compilePdfButton.addEventListener('click', () => {
 });
 
 selectOutputFolderButton.addEventListener('click', () => {
-    // This would typically open a folder selection dialog
-    // For now, we'll just show an alert
     alert('Output folder selection is not implemented in this prototype.');
 });
 
 saveReportButton.addEventListener('click', () => {
-    // This would typically save the current compilation settings
-    // For now, we'll just show an alert
     alert('Report saving is not implemented in this prototype.');
 });
 
 loadReportButton.addEventListener('click', () => {
-    // This would typically load saved compilation settings
-    // For now, we'll just show an alert
     alert('Report loading is not implemented in this prototype.');
 });
 
 // Initial PDF list update
 updatePdfLists();
+
+// Resize canvas when window is resized
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});

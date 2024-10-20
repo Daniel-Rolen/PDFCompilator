@@ -16,13 +16,13 @@
         <div id="content">
             <h1>The Binder</h1>
             <div id="controls">
-                <input type="text" id="pdfName" placeholder="Enter PDF name">
-                <button id="addPdf">Add PDF</button>
-                <button id="removePdf">Remove PDF</button>
-                <button id="compilePdf">Compile PDF</button>
-                <button id="selectOutputFolder">Select Output Folder</button>
-                <button id="saveReport">Save Report</button>
-                <button id="loadReport">Load Report</button>
+                <input type="text" id="pdfName" placeholder="Enter PDF name" class="balloon-element">
+                <button id="addPdf" class="balloon-element">Add PDF</button>
+                <button id="removePdf" class="balloon-element">Remove PDF</button>
+                <button id="compilePdf" class="balloon-element">Compile PDF</button>
+                <button id="selectOutputFolder" class="balloon-element">Select Output Folder</button>
+                <button id="saveReport" class="balloon-element">Save Report</button>
+                <button id="loadReport" class="balloon-element">Load Report</button>
             </div>
             <div id="pdfSections">
                 <div id="selectedFiles">
@@ -36,11 +36,10 @@
             </div>
             <div id="coverPageSettings">
                 <h2>Cover Page Settings</h2>
-                <input type="checkbox" id="useCoverPages">
+                <input type="checkbox" id="useCoverPages" class="balloon-element">
                 <label for="useCoverPages">Use cover pages</label>
-                <input type="text" id="coverPages" placeholder="Enter cover page numbers (e.g., 1,2,3-5)">
+                <input type="text" id="coverPages" placeholder="Enter cover page numbers (e.g., 1,2,3-5)" class="balloon-element">
             </div>
-            <div id="pdfList"></div>
         </div>
     </div>
     <script src="/static/script.js"></script>
