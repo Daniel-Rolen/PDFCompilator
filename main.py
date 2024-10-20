@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify, request, send_from_directory
 import os
 import json
+from pdf_compiler import compile_pdfs
+from name_generator import generate_space_name as generate_name
 
 app = Flask(__name__)
 
@@ -35,12 +37,20 @@ def remove_pdf():
 def compile_pdf():
     use_cover_pages = request.json.get('useCoverPages', False)
     cover_pages = request.json.get('coverPages', '')
-    # This is a placeholder for the actual PDF compilation logic
-    return jsonify(success=True, message="PDFs compiled successfully", files=pdf_files, useCoverPages=use_cover_pages, coverPages=cover_pages)
+    output_filename = generate_name() + ".pdf"
+    output_path = os.path.join("output", output_filename)
+    
+    try:
+        compile_pdfs(pdf_files, output_path, use_cover_pages, cover_pages)
+        return jsonify(success=True, message=f"PDFs compiled successfully as {output_filename}", files=pdf_files, useCoverPages=use_cover_pages, coverPages=cover_pages)
+    except Exception as e:
+        return jsonify(success=False, message=f"Error compiling PDFs: {str(e)}")
 
 @app.route('/get_pdfs', methods=['GET'])
 def get_pdfs():
     return jsonify(pdf_files)
 
 if __name__ == '__main__':
+    if not os.path.exists("output"):
+        os.makedirs("output")
     app.run(host='0.0.0.0', port=8080, debug=True)

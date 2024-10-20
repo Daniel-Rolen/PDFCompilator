@@ -109,17 +109,38 @@ Note: The table of contents functionality is integrated with the cover page sett
 13. Performance issues may occur with the new animations on lower-end devices.
 14. Compatibility issues across different browsers or devices may exist due to the advanced CSS and JavaScript effects.
 15. Some features are still not fully implemented, such as actual PDF compilation and file handling.
+16. Need to implement functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
 
 ## Current Status
 
-We have successfully implemented the initial prototype with a cyberpunk-inspired GUI using Electron.js. The interface now features neon colors, glitch effects, and animated elements that align with the desired cyberpunk and zef culture aesthetic. The current focus is on optimizing performance for smoother animations, especially on lower-end devices, and adding more interactive elements to enhance user experience.
+We have successfully implemented the initial prototype with a cyberpunk-inspired GUI using Electron.js. The interface now features neon colors, glitch effects, and animated elements that align with the desired cyberpunk and zef culture aesthetic. Here's an update on our progress:
 
-The next steps include:
+1. Cyberpunk-inspired GUI:
+   - The interface has been redesigned with a dark background, neon colors, and angular UI elements.
+   - Animated background with floating particles has been implemented, creating a futuristic atmosphere.
+   - Eyeball mascots have been updated to look more robotic or cybernetic, fitting the cyberpunk theme.
+
+2. Animated background and UI elements:
+   - A subtle screen flicker effect has been added to enhance the cyberpunk feel.
+   - Buttons and other UI elements now have glitch effects and neon glow animations.
+
+3. Performance optimization:
+   - Initial implementation of animations and effects is complete, but further optimization is needed.
+   - Performance issues may occur on lower-end devices due to the complex animations.
+
+4. PDF compilation functionality:
+   - The core PDF compilation functionality is not yet implemented in the new Electron.js frontend.
+   - Backend Python functionality needs to be integrated with the new frontend.
+
+The current focus is on optimizing performance for smoother animations, especially on lower-end devices, and adding more interactive elements to enhance user experience.
+
+Next steps include:
 1. Optimizing the performance of animations and effects.
 2. Implementing the core PDF compilation functionality.
 3. Enhancing the interactivity of UI elements.
 4. Ensuring cross-platform compatibility.
 5. Integrating the backend Python functionality with the new Electron.js frontend.
+6. Implementing the functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
 
 ## License
 

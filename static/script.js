@@ -208,20 +208,56 @@ compilePdfButton.addEventListener('click', () => {
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message);
+        if (data.success) {
+            alert(`PDFs compiled successfully! Output file: ${data.message}`);
+        } else {
+            alert(`Error: ${data.message}`);
+        }
     });
 });
 
 selectOutputFolderButton.addEventListener('click', () => {
-    alert('Output folder selection is not implemented in this prototype.');
+    alert('Output folder selection is not implemented in this prototype. Files are saved in the "output" folder.');
 });
 
 saveReportButton.addEventListener('click', () => {
-    alert('Report saving is not implemented in this prototype.');
+    const report = {
+        pdfs: Array.from(selectedFilesList.children).map(li => li.textContent),
+        useCoverPages: useCoverPagesCheckbox.checked,
+        coverPages: coverPagesInput.value,
+    };
+    const blob = new Blob([JSON.stringify(report)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'binder_report.json';
+    a.click();
 });
 
 loadReportButton.addEventListener('click', () => {
-    alert('Report loading is not implemented in this prototype.');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const report = JSON.parse(e.target.result);
+            report.pdfs.forEach(pdf => {
+                fetch('/add_pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: pdf }),
+                })
+                .then(() => updatePdfLists());
+            });
+            useCoverPagesCheckbox.checked = report.useCoverPages;
+            coverPagesInput.value = report.coverPages;
+        };
+        reader.readAsText(file);
+    };
+    input.click();
 });
 
 // Initial PDF list update
