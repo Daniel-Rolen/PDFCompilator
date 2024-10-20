@@ -132,6 +132,22 @@ class PDFCompilerGUI:
         self.cover_source_label = ttk.Label(cover_frame, text="Cover Source: None (0 pages)")
         self.cover_source_label.pack(side=tk.BOTTOM, pady=5)
 
+        # New page selection frame
+        page_selection_frame = ttk.Frame(main_frame, padding=10)
+        page_selection_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        ttk.Label(page_selection_frame, text="Available PDFs:", font=("Comic Sans MS", 14, "bold")).pack(anchor=tk.W)
+
+        self.pdf_info_text = tk.Text(page_selection_frame, width=50, height=5, bg="#FFE5EC", fg=self.style.fg_color, font=("Comic Sans MS", 12))
+        self.pdf_info_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        pdf_info_scrollbar = ttk.Scrollbar(page_selection_frame, orient=tk.VERTICAL, command=self.pdf_info_text.yview)
+        pdf_info_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.pdf_info_text.config(yscrollcommand=pdf_info_scrollbar.set)
+
+        ttk.Label(page_selection_frame, text="Enter page numbers or ranges (e.g., 1,3,5-7,10-12):", font=("Comic Sans MS", 12)).pack(anchor=tk.W, pady=(10, 0))
+        self.page_selection_entry = ttk.Entry(page_selection_frame, width=50, font=("Comic Sans MS", 12))
+        self.page_selection_entry.pack(fill=tk.X, pady=5)
+
         self.create_bubbly_button(main_frame, "🚀 Compile PDFs", self.compile_pdfs).pack(pady=10)
 
         self.output_folder_label = ttk.Label(main_frame, text="Output Folder: none", wraplength=600)
@@ -168,6 +184,7 @@ class PDFCompilerGUI:
                 self.selected_files.append((file_path, pdf_info))
                 self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
         self.update_cover_source_label()
+        self.update_pdf_info_display()
 
     def remove_pdf(self):
         selection = self.file_listbox.curselection()
@@ -176,6 +193,7 @@ class PDFCompilerGUI:
             del self.selected_files[index]
             self.file_listbox.delete(index)
             self.update_cover_source_label()
+            self.update_pdf_info_display()
             print(f"Removed PDF at index: {index}")
             print(f"Remaining files: {self.selected_files}")
 
@@ -186,6 +204,7 @@ class PDFCompilerGUI:
             self.selected_files[index-1], self.selected_files[index] = self.selected_files[index], self.selected_files[index-1]
             self.update_file_listbox()
             self.file_listbox.selection_set(index-1)
+            self.update_pdf_info_display()
 
     def move_pdf_down(self):
         selection = self.file_listbox.curselection()
@@ -194,6 +213,7 @@ class PDFCompilerGUI:
             self.selected_files[index], self.selected_files[index+1] = self.selected_files[index+1], self.selected_files[index]
             self.update_file_listbox()
             self.file_listbox.selection_set(index+1)
+            self.update_pdf_info_display()
 
     def select_output_folder(self):
         self.output_folder = filedialog.askdirectory()
@@ -202,27 +222,10 @@ class PDFCompilerGUI:
         else:
             self.output_folder_label.config(text="Output Folder: none")
 
-    def get_page_selections(self):
-        pdf_info = "\n".join([f"{info['file_name']} ({info['num_pages']} pages)" for _, info in self.selected_files])
-        page_input = simpledialog.askstring("Select Pages", 
-            f"Enter page numbers or ranges for all PDFs (comma-separated):\n"
-            f"Example: 1,3,5-7,10-12\n\n"
-            f"Available PDFs:\n{pdf_info}")
-        
-        if not page_input:
-            return None
-
-        selected_pages = {}
-        for file_path, pdf_info in self.selected_files:
-            try:
-                page_list = parse_page_selection(page_input, pdf_info['num_pages'])
-                if page_list:
-                    selected_pages[file_path] = page_list
-            except ValueError as e:
-                messagebox.showwarning("Invalid Input", f"Error parsing pages for {pdf_info['file_name']}: {str(e)}")
-                return None
-
-        return selected_pages
+    def update_pdf_info_display(self):
+        self.pdf_info_text.delete('1.0', tk.END)
+        for _, pdf_info in self.selected_files:
+            self.pdf_info_text.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)\n")
 
     def save_report(self):
         name = generate_space_name()
@@ -257,7 +260,9 @@ class PDFCompilerGUI:
                 if selected_report.cover_pages:
                     self.cover_pages_entry.insert(0, ','.join(map(str, selected_report.cover_pages)))
                 self.update_cover_source_label()
-                self.compile_pdfs(selected_report.page_selections)
+                self.update_pdf_info_display()
+                self.page_selection_entry.delete(0, tk.END)
+                self.page_selection_entry.insert(0, ','.join(str(page) for pages in selected_report.page_selections.values() for page in pages))
                 print(f"Debug: Report loaded - {selected_name}")
             else:
                 messagebox.showerror("Error", "Selected report not found.")
@@ -296,6 +301,24 @@ class PDFCompilerGUI:
             self.cover_source_label.config(text=f"Cover Source: {file_info['file_name']} ({file_info['num_pages']} pages)")
         else:
             self.cover_source_label.config(text="Cover Source: None (0 pages)")
+
+    def get_page_selections(self):
+        page_input = self.page_selection_entry.get()
+        if not page_input:
+            messagebox.showwarning("No Pages Selected", "Please enter page numbers or ranges before compiling.")
+            return None
+
+        selected_pages = {}
+        for file_path, pdf_info in self.selected_files:
+            try:
+                page_list = parse_page_selection(page_input, pdf_info['num_pages'])
+                if page_list:
+                    selected_pages[file_path] = page_list
+            except ValueError as e:
+                messagebox.showwarning("Invalid Input", f"Error parsing pages for {pdf_info['file_name']}: {str(e)}")
+                return None
+
+        return selected_pages
 
     def compile_pdfs(self, page_selections=None):
         if not self.selected_files:
