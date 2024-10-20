@@ -175,6 +175,8 @@ class PDFCompilerGUI:
             del self.selected_files[file_path]
             self.file_listbox.delete(index)
             self.update_cover_source_label()
+            print(f"Removed PDF: {file_path}")  # Debug print
+            print(f"Remaining files: {self.selected_files}")  # Debug print
 
     def select_output_folder(self):
         self.output_folder = filedialog.askdirectory()
