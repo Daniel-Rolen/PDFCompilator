@@ -99,21 +99,13 @@ Note: The table of contents functionality is integrated with the cover page sett
 3. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
 4. The "Remove PDF" button functionality is inconsistent.
 5. Flask module not found: Ensure Flask is installed properly using `pip install flask`.
-6. Buttons are missing from the GUI.
-7. Files selected and files available sections are absent from the GUI.
-8. The interface now follows a cyberpunk and zef-inspired aesthetic with neon colors and glitch effects.
-9. Animated background with floating particles has been implemented.
-10. Buttons and UI elements have been redesigned with angular, polygon-based shapes.
-11. Eyeball mascots have been updated to look more robotic or cybernetic.
-12. A subtle screen flicker effect has been added to enhance the cyberpunk feel.
-13. Performance issues may occur with the new animations on lower-end devices.
-14. Compatibility issues across different browsers or devices may exist due to the advanced CSS and JavaScript effects.
-15. Some features are still not fully implemented, such as actual PDF compilation and file handling.
-16. Need to implement functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
+6. Some features are still not fully implemented, such as actual PDF compilation and file handling.
+7. Need to implement functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
+8. Space in file names may cause issues with PDF compilation and handling.
 
 ## Current Status
 
-We have successfully implemented the initial prototype with a cyberpunk-inspired GUI using Electron.js. The interface now features neon colors, glitch effects, and animated elements that align with the desired cyberpunk and zef culture aesthetic. Here's an update on our progress:
+We have successfully implemented the initial prototype with a cyberpunk-inspired GUI using Electron.js and Flask. The interface now features neon colors, glitch effects, and animated elements that align with the desired cyberpunk and zef culture aesthetic. Here's an update on our progress:
 
 1. Cyberpunk-inspired GUI:
    - The interface has been redesigned with a dark background, neon colors, and angular UI elements.
@@ -126,21 +118,29 @@ We have successfully implemented the initial prototype with a cyberpunk-inspired
 
 3. Performance optimization:
    - Initial implementation of animations and effects is complete, but further optimization is needed.
-   - Performance issues may occur on lower-end devices due to the complex animations.
 
 4. PDF compilation functionality:
-   - The core PDF compilation functionality is not yet implemented in the new Electron.js frontend.
-   - Backend Python functionality needs to be integrated with the new frontend.
+   - Basic backend functionality for PDF compilation has been implemented using PyPDF2.
+   - Frontend integration with the backend for PDF compilation is in progress.
 
-The current focus is on optimizing performance for smoother animations, especially on lower-end devices, and adding more interactive elements to enhance user experience.
+5. File management:
+   - Users can now add and remove PDF files from the compilation list.
+   - The interface displays both selected and available PDF files.
+
+6. Cover page and report functionality:
+   - Users can enable cover pages and specify page numbers for cover pages.
+   - Save and load report functionality has been implemented.
+
+The current focus is on optimizing performance for smoother animations, especially on lower-end devices, and completing the integration of PDF compilation functionality with the frontend.
 
 Next steps include:
 1. Optimizing the performance of animations and effects.
-2. Implementing the core PDF compilation functionality.
-3. Enhancing the interactivity of UI elements.
-4. Ensuring cross-platform compatibility.
-5. Integrating the backend Python functionality with the new Electron.js frontend.
+2. Completing the integration of PDF compilation functionality with the frontend.
+3. Implementing file selection for modifying page ranges of specific PDFs.
+4. Enhancing the interactivity of UI elements.
+5. Ensuring cross-platform compatibility.
 6. Implementing the functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
+7. Addressing the issue with spaces in file names for PDF compilation and handling.
 
 ## License
 
