@@ -1,16 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
 body, html {
     margin: 0;
     padding: 0;
-    font-family: 'Courier New', monospace;
+    font-family: 'Orbitron', sans-serif;
     height: 100%;
     background-color: #0a0a0a;
-    color: #00ff00;
+    color: #ADFF2F;
+    overflow: hidden;
 }
 
 #app {
     position: relative;
     height: 100%;
-    overflow: hidden;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23000"/><path d="M0 50 L100 50 M50 0 L50 100" stroke="%23111" stroke-width="0.5"/></svg>');
+    background-repeat: repeat;
+    animation: backgroundFlicker 0.1s infinite;
+}
+
+@keyframes backgroundFlicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.98; }
+    100% { opacity: 1; }
 }
 
 #bubbly-background {
@@ -30,27 +41,46 @@ body, html {
 }
 
 .eyeball {
-    width: 50px;
-    height: 50px;
-    background-color: #ff00ff;
-    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    background-color: #111;
+    border-radius: 5px;
     display: inline-block;
     margin-left: 10px;
     position: relative;
-    box-shadow: 0 0 10px #ff00ff;
+    box-shadow: 0 0 10px #FF00FF, 0 0 20px #FF00FF;
+    overflow: hidden;
+}
+
+.eyeball::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: #FF00FF;
+    border-radius: 5px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: eyePulse 2s infinite;
 }
 
 .eyeball::after {
     content: '';
     position: absolute;
-    width: 25px;
-    height: 25px;
-    background-color: #00ffff;
-    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    background-color: #00FFFF;
+    border-radius: 5px;
     top: 50%;
     left: 50%;
     transform: translate(calc(-50% + var(--pupil-x, 0px)), calc(-50% + var(--pupil-y, 0px)));
-    box-shadow: 0 0 5px #00ffff;
+    box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF;
+}
+
+@keyframes eyePulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(0.9); }
 }
 
 #content {
@@ -58,47 +88,58 @@ body, html {
     z-index: 1;
     padding: 20px;
     background: linear-gradient(145deg, rgba(10, 10, 10, 0.8), rgba(20, 20, 20, 0.8));
-    border: 2px solid #00ff00;
-    border-radius: 30px;
+    border: 2px solid #FF00FF;
+    clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
     max-width: 800px;
     margin: 20px auto;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+    animation: contentGlow 4s infinite;
 }
 
-#content:hover {
-    transform: scale(1.02);
+@keyframes contentGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(255, 0, 255, 0.5); }
 }
 
 h1, h2 {
-    color: #ff00ff;
-    text-shadow: 0 0 5px #ff00ff;
+    color: #FF00FF;
+    text-shadow: 0 0 10px #FF00FF, 0 0 20px #FF00FF;
     text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: textGlitch 3s infinite;
 }
 
-.balloon-element {
-    background: linear-gradient(145deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 0, 0.2));
-    color: #00ff00;
-    border: 2px solid #00ff00;
+@keyframes textGlitch {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-1px, -1px); }
+    80% { transform: translate(1px, 1px); }
+}
+
+.neon-element {
+    background: linear-gradient(145deg, rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.2));
+    color: #00FFFF;
+    border: 2px solid #00FFFF;
     padding: 10px 20px;
     margin: 5px;
     cursor: pointer;
-    border-radius: 25px;
-    font-family: 'Courier New', monospace;
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+    font-family: 'Orbitron', sans-serif;
     text-transform: uppercase;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
-.balloon-element:hover {
-    background: linear-gradient(145deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 0, 0.3));
+.neon-element:hover {
+    background: linear-gradient(145deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 255, 0.3));
     transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(0, 255, 0, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
 }
 
-.balloon-element:active {
+.neon-element:active {
     transform: translateY(1px) scale(0.98);
 }
 
@@ -110,79 +151,90 @@ h1, h2 {
 
 #selectedFiles, #availableFiles {
     width: 45%;
-    background: linear-gradient(145deg, rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.2));
-    border: 1px solid #00ffff;
-    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(173, 255, 47, 0.1), rgba(173, 255, 47, 0.2));
+    border: 1px solid #ADFF2F;
+    clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
     padding: 15px;
-    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(173, 255, 47, 0.3);
     transition: all 0.3s ease;
 }
 
 #selectedFiles:hover, #availableFiles:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 25px rgba(173, 255, 47, 0.5);
 }
 
 #pdfList li, #selectedFilesList li, #availableFilesList li {
     background: linear-gradient(145deg, rgba(255, 0, 255, 0.1), rgba(255, 0, 255, 0.2));
     padding: 8px 15px;
     margin-bottom: 8px;
-    border-radius: 15px;
+    clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
     list-style-type: none;
-    border: 1px solid #ff00ff;
+    border: 1px solid #FF00FF;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 10px rgba(255, 0, 255, 0.2);
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
 }
 
 #pdfList li:hover, #selectedFilesList li:hover, #availableFilesList li:hover {
     background: linear-gradient(145deg, rgba(255, 0, 255, 0.2), rgba(255, 0, 255, 0.3));
     transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(255, 0, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
 }
 
 #coverPageSettings {
     margin-top: 20px;
     padding: 15px;
-    background: linear-gradient(145deg, rgba(255, 255, 0, 0.1), rgba(255, 255, 0, 0.2));
-    border: 1px solid #ffff00;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(255, 255, 0, 0.2);
+    background: linear-gradient(145deg, rgba(0, 255, 255, 0.1), rgba(0, 255, 255, 0.2));
+    border: 1px solid #00FFFF;
+    clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
     transition: all 0.3s ease;
 }
 
 #coverPageSettings:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(255, 255, 0, 0.3);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
 }
 
-/* Balloon-like glow effect */
-@keyframes balloon-glow {
+/* Neon glow effect */
+@keyframes neonGlow {
     0% {
-        box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+        box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #00FFFF;
     }
     50% {
-        box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
+        box-shadow: 0 0 10px #00FFFF, 0 0 20px #00FFFF, 0 0 30px #00FFFF;
     }
     100% {
-        box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+        box-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF, 0 0 15px #00FFFF;
     }
 }
 
-.balloon-element:hover {
-    animation: balloon-glow 1.5s infinite;
+.neon-element:hover {
+    animation: neonGlow 1.5s infinite;
 }
 
-/* Wobble animation */
-@keyframes wobble {
-    0% { transform: translateX(0%); }
-    15% { transform: translateX(-3%) rotate(-1deg); }
-    30% { transform: translateX(2%) rotate(1deg); }
-    45% { transform: translateX(-1%) rotate(-0.5deg); }
-    60% { transform: translateX(1%) rotate(0.5deg); }
-    75% { transform: translateX(-0.5%) rotate(-0.25deg); }
-    100% { transform: translateX(0%); }
+/* Glitch animation */
+@keyframes glitch {
+    0% {
+        transform: translate(0);
+    }
+    20% {
+        transform: translate(-2px, 2px);
+    }
+    40% {
+        transform: translate(-2px, -2px);
+    }
+    60% {
+        transform: translate(2px, 2px);
+    }
+    80% {
+        transform: translate(2px, -2px);
+    }
+    100% {
+        transform: translate(0);
+    }
 }
 
-.balloon-element:hover {
-    animation: wobble 0.8s ease-in-out;
+.neon-element:hover {
+    animation: glitch 0.3s infinite;
 }

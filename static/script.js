@@ -1,4 +1,4 @@
-// Animation for bubbly background
+// Animation for cyberpunk background
 const canvas = document.getElementById('bubbly-background');
 const ctx = canvas.getContext('2d');
 
@@ -6,105 +6,58 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Bubble properties
-const bubbles = [];
-const bubbleCount = 50;
-const bubblePool = [];
+// Particle properties
+const particles = [];
+const particleCount = 100;
 
-class Bubble {
+class Particle {
     constructor() {
-        this.reset();
-    }
-
-    reset() {
         this.x = Math.random() * canvas.width;
-        this.y = canvas.height + Math.random() * 100;
-        this.size = Math.random() * 20 + 10;
-        this.speed = Math.random() * 2 + 1;
-        this.color = `hsla(${Math.random() * 360}, 100%, 50%, 0.5)`;
-        this.opacity = Math.random() * 0.5 + 0.1;
-        this.scale = 1;
-        this.growthRate = Math.random() * 0.02 - 0.01;
-        this.wobbleOffset = Math.random() * Math.PI * 2;
-        this.wobbleSpeed = Math.random() * 0.05 + 0.02;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = Math.random() * 3 - 1.5;
+        this.speedY = Math.random() * 3 - 1.5;
+        this.color = `hsl(${Math.random() * 60 + 180}, 100%, 50%)`;
     }
 
     update() {
-        this.y -= this.speed;
-        this.x += Math.sin(this.wobbleOffset) * 0.5;
-        this.wobbleOffset += this.wobbleSpeed;
-        this.scale += this.growthRate;
+        this.x += this.speedX;
+        this.y += this.speedY;
 
-        if (this.scale > 1.2 || this.scale < 0.8) {
-            this.growthRate *= -1;
+        if (this.x > canvas.width || this.x < 0) {
+            this.speedX = -this.speedX;
         }
-
-        this.opacity += this.growthRate * 0.2;
-        this.opacity = Math.max(0.1, Math.min(0.6, this.opacity));
-
-        if (this.y < -this.size) {
-            this.reset();
+        if (this.y > canvas.height || this.y < 0) {
+            this.speedY = -this.speedY;
         }
     }
 
     draw() {
+        ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * this.scale, 0, Math.PI * 2);
-        ctx.fillStyle = this.color.replace('0.5', this.opacity);
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
     }
 }
 
-function createBubble() {
-    if (bubblePool.length > 0) {
-        return bubblePool.pop();
-    }
-    return new Bubble();
-}
-
-// Create initial bubbles
-for (let i = 0; i < bubbleCount; i++) {
-    bubbles.push(createBubble());
+// Create initial particles
+for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
 }
 
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    bubbles.forEach(bubble => {
-        bubble.update();
-        bubble.draw();
+    particles.forEach(particle => {
+        particle.update();
+        particle.draw();
     });
     requestAnimationFrame(animate);
 }
 
 animate();
 
-// Eyeball animation
+// Cybernetic eyeball animation
 const eyeballs = document.querySelectorAll('.eyeball');
-const eyeballBubbles = [];
-
-class EyeballBubble extends Bubble {
-    constructor(eyeball) {
-        super();
-        this.eyeball = eyeball;
-        this.angle = Math.random() * Math.PI * 2;
-        this.distance = Math.random() * 30 + 20;
-        this.size = Math.random() * 5 + 2;
-    }
-
-    update() {
-        super.update();
-        this.angle += 0.05;
-        const rect = this.eyeball.getBoundingClientRect();
-        this.x = rect.left + rect.width / 2 + Math.cos(this.angle) * this.distance;
-        this.y = rect.top + rect.height / 2 + Math.sin(this.angle) * this.distance;
-    }
-}
-
-eyeballs.forEach(eyeball => {
-    for (let i = 0; i < 5; i++) {
-        eyeballBubbles.push(new EyeballBubble(eyeball));
-    }
-});
 
 function animateEyeballs() {
     eyeballs.forEach(eyeball => {
@@ -118,62 +71,53 @@ function animateEyeballs() {
         eyeball.style.setProperty('--pupil-y', `${y}px`);
     });
     
-    eyeballBubbles.forEach(bubble => {
-        bubble.update();
-        bubble.draw();
-    });
-
     requestAnimationFrame(animateEyeballs);
 }
 
 animateEyeballs();
 
-// New BalloonElement class for buttons, sections, and window frames
-class BalloonElement {
+// Glitch effect for neon elements
+class GlitchEffect {
     constructor(element) {
         this.element = element;
-        this.originalScale = 1;
-        this.inflated = false;
-        this.wobbleOffset = Math.random() * Math.PI * 2;
-        this.wobbleSpeed = Math.random() * 0.02 + 0.01;
+        this.originalText = element.textContent;
+        this.glitchInterval = null;
+        this.glitchDuration = 100;
+        this.glitchCooldown = 5000;
 
-        this.element.addEventListener('mouseenter', () => this.inflate());
-        this.element.addEventListener('mouseleave', () => this.deflate());
-        this.element.addEventListener('click', () => this.wobble());
-
-        this.animate();
+        this.element.addEventListener('mouseenter', () => this.startGlitch());
+        this.element.addEventListener('mouseleave', () => this.stopGlitch());
     }
 
-    inflate() {
-        this.inflated = true;
-        this.element.style.transform = `scale(1.05)`;
+    startGlitch() {
+        if (this.glitchInterval) return;
+
+        this.glitchInterval = setInterval(() => {
+            this.element.textContent = this.generateGlitchedText();
+            setTimeout(() => {
+                this.element.textContent = this.originalText;
+            }, this.glitchDuration);
+        }, this.glitchCooldown);
     }
 
-    deflate() {
-        this.inflated = false;
-        this.element.style.transform = `scale(1)`;
+    stopGlitch() {
+        clearInterval(this.glitchInterval);
+        this.glitchInterval = null;
+        this.element.textContent = this.originalText;
     }
 
-    wobble() {
-        this.element.style.animation = 'wobble 0.8s ease-in-out';
-        this.element.addEventListener('animationend', () => {
-            this.element.style.animation = '';
-        }, { once: true });
-    }
-
-    animate() {
-        if (!this.inflated) {
-            this.wobbleOffset += this.wobbleSpeed;
-            const wobbleAmount = Math.sin(this.wobbleOffset) * 2;
-            this.element.style.transform = `translateY(${wobbleAmount}px)`;
-        }
-        requestAnimationFrame(() => this.animate());
+    generateGlitchedText() {
+        const glitchChars = '!@#$%^&*()_+-={}[]|;:,.<>?';
+        return this.originalText
+            .split('')
+            .map(char => Math.random() > 0.7 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char)
+            .join('');
     }
 }
 
-// Apply BalloonElement behavior to relevant elements
-document.querySelectorAll('.balloon-element').forEach(element => {
-    new BalloonElement(element);
+// Apply GlitchEffect to neon elements
+document.querySelectorAll('.neon-element').forEach(element => {
+    new GlitchEffect(element);
 });
 
 // PDF management functionality
@@ -198,17 +142,17 @@ function updatePdfLists() {
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
-                li.classList.add('balloon-element');
+                li.classList.add('neon-element');
                 selectedFilesList.appendChild(li);
-                new BalloonElement(li);
+                new GlitchEffect(li);
             });
             // For now, we'll just duplicate the selected files in the available files list
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
-                li.classList.add('balloon-element');
+                li.classList.add('neon-element');
                 availableFilesList.appendChild(li);
-                new BalloonElement(li);
+                new GlitchEffect(li);
             });
         });
 }
@@ -288,3 +232,14 @@ window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 });
+
+// Screen flicker effect
+function screenFlicker() {
+    const app = document.getElementById('app');
+    app.style.opacity = Math.random() * 0.1 + 0.9;
+    setTimeout(() => {
+        app.style.opacity = 1;
+    }, 50);
+}
+
+setInterval(screenFlicker, 5000);
