@@ -33,7 +33,7 @@ class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
         self.master.title("PDF Compiler")
-        self.master.geometry("600x700")  # Increased height to accommodate new sections
+        self.master.geometry("600x750")  # Increased height to accommodate new sections
 
         self.selected_files = {}
         self.output_folder = None
@@ -78,13 +78,16 @@ class PDFCompilerGUI:
         cover_frame.pack(fill=tk.X, padx=10, pady=5)
 
         self.use_cover_pages_var = tk.BooleanVar()
-        self.use_cover_pages_check = tk.Checkbutton(cover_frame, text="Use cover pages", variable=self.use_cover_pages_var)
+        self.use_cover_pages_check = tk.Checkbutton(cover_frame, text="Use cover pages", variable=self.use_cover_pages_var, command=self.update_cover_source_label)
         self.use_cover_pages_check.pack(side=tk.LEFT)
 
         tk.Label(cover_frame, text="Cover pages:").pack(side=tk.LEFT, padx=(10, 0))
         self.cover_pages_entry = tk.Entry(cover_frame, width=20)
         self.cover_pages_entry.pack(side=tk.LEFT, padx=5)
         tk.Label(cover_frame, text="(e.g., 1,2,3-5)").pack(side=tk.LEFT)
+
+        self.cover_source_label = tk.Label(cover_frame, text="Cover Source: None (0 pages)")
+        self.cover_source_label.pack(side=tk.BOTTOM, pady=5)
 
         compile_button = tk.Button(self.master, text="Compile PDFs", command=self.compile_pdfs)
         compile_button.pack(pady=10)
@@ -118,6 +121,7 @@ class PDFCompilerGUI:
             if pdf_info:
                 self.selected_files[file_path] = pdf_info
                 self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
+        self.update_cover_source_label()
 
     def remove_pdf(self):
         selection = self.file_listbox.curselection()
@@ -125,6 +129,7 @@ class PDFCompilerGUI:
             file_path = list(self.selected_files.keys())[selection[0]]
             del self.selected_files[file_path]
             self.file_listbox.delete(selection[0])
+        self.update_cover_source_label()
 
     def select_output_folder(self):
         self.output_folder = filedialog.askdirectory()
@@ -187,6 +192,7 @@ class PDFCompilerGUI:
                 self.cover_pages_entry.delete(0, tk.END)
                 if selected_report.cover_pages:
                     self.cover_pages_entry.insert(0, ','.join(map(str, selected_report.cover_pages)))
+                self.update_cover_source_label()
                 self.compile_pdfs(selected_report.page_selections)
             else:
                 messagebox.showerror("Error", "Selected report not found.")
@@ -215,6 +221,14 @@ class PDFCompilerGUI:
                 self.report_listbox.insert(tk.END, report.name)
         else:
             self.report_listbox.insert(tk.END, "none")
+
+    def update_cover_source_label(self):
+        if self.use_cover_pages_var.get() and self.selected_files:
+            first_file = list(self.selected_files.keys())[0]
+            file_info = self.selected_files[first_file]
+            self.cover_source_label.config(text=f"Cover Source: {file_info['file_name']} ({file_info['num_pages']} pages)")
+        else:
+            self.cover_source_label.config(text="Cover Source: None (0 pages)")
 
     def compile_pdfs(self, page_selections=None):
         if not self.selected_files:
