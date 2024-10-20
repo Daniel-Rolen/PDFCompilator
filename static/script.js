@@ -1,5 +1,5 @@
-// Animation for cyberpunk background
-const canvas = document.getElementById('bubbly-background');
+// Galaxy background animation
+const canvas = document.getElementById('galaxy-background');
 const ctx = canvas.getContext('2d');
 
 // Set canvas size
@@ -11,43 +11,39 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// Particle properties
-const particles = [];
-const particleCount = 15; // Reduced from 20 to 15 for better performance
+// Star properties
+const stars = [];
+const starCount = 200;
+const maxStarSize = 2;
 
-class Particle {
+class Star {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 1;
-        this.speedX = Math.random() * 0.3 - 0.15; // Reduced speed range
-        this.speedY = Math.random() * 0.3 - 0.15; // Reduced speed range
-        this.color = `hsl(${Math.random() * 60 + 180}, 100%, 50%)`;
+        this.size = Math.random() * maxStarSize;
+        this.speed = Math.random() * 0.2;
+        this.brightness = Math.random();
     }
 
     update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (this.x > canvas.width || this.x < 0) {
-            this.speedX = -this.speedX;
+        this.y -= this.speed;
+        if (this.y < 0) {
+            this.y = canvas.height;
         }
-        if (this.y > canvas.height || this.y < 0) {
-            this.speedY = -this.speedY;
-        }
+        this.brightness = Math.sin(performance.now() * 0.001 * this.speed) * 0.5 + 0.5;
     }
 
     draw() {
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.brightness})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
     }
 }
 
-// Create initial particles
-for (let i = 0; i < particleCount; i++) {
-    particles.push(new Particle());
+// Create initial stars
+for (let i = 0; i < starCount; i++) {
+    stars.push(new Star());
 }
 
 let animationFrameId;
@@ -64,91 +60,13 @@ function animate(currentTime) {
     lastTime = currentTime - (deltaTime % frameInterval);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(particle => {
-        particle.update();
-        particle.draw();
+    stars.forEach(star => {
+        star.update();
+        star.draw();
     });
 }
 
 animate(0);
-
-// Cybernetic eyeball animation
-const eyeballs = document.querySelectorAll('.eyeball');
-let lastEyeballUpdate = 0;
-const eyeballUpdateInterval = 300; // Increased from 200ms to 300ms for better performance
-
-function animateEyeballs(timestamp) {
-    if (timestamp - lastEyeballUpdate > eyeballUpdateInterval) {
-        eyeballs.forEach(eyeball => {
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * 4; // Reduced distance for subtler movement
-            const x = Math.cos(angle) * distance;
-            const y = Math.sin(angle) * distance;
-            
-            eyeball.style.setProperty('--pupil-x', `${x}px`);
-            eyeball.style.setProperty('--pupil-y', `${y}px`);
-        });
-        lastEyeballUpdate = timestamp;
-    }
-    
-    requestAnimationFrame(animateEyeballs);
-}
-
-animateEyeballs(0);
-
-// Bubble animation
-function createBubble() {
-    const bubble = document.createElement('div');
-    bubble.classList.add('bubble');
-    bubble.style.left = `${Math.random() * 100}%`;
-    bubble.style.width = `${Math.random() * 20 + 10}px`; // Reduced size for better performance
-    bubble.style.height = bubble.style.width;
-    bubble.style.animationDuration = `${Math.random() * 3 + 5}s`; // Reduced animation duration
-    document.body.appendChild(bubble);
-
-    bubble.addEventListener('animationend', () => {
-        bubble.remove();
-    });
-}
-
-// Create bubbles at a controlled rate
-setInterval(createBubble, 3000); // Reduced frequency for better performance
-
-// Glitch effect for neon elements (optimized)
-class GlitchEffect {
-    constructor(element) {
-        this.element = element;
-        this.originalText = element.textContent;
-        this.isGlitching = false;
-    }
-
-    startGlitch() {
-        if (this.isGlitching) return;
-        this.isGlitching = true;
-        this.glitchInterval = setInterval(() => this.applyGlitch(), 300); // Reduced frequency
-    }
-
-    stopGlitch() {
-        clearInterval(this.glitchInterval);
-        this.isGlitching = false;
-        this.element.textContent = this.originalText;
-    }
-
-    applyGlitch() {
-        const glitchChars = '!@#$%^&*()_+-={}[]|;:,.<>?';
-        this.element.textContent = this.originalText
-            .split('')
-            .map(char => Math.random() > 0.97 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char)
-            .join('');
-    }
-}
-
-// Apply GlitchEffect to neon elements
-document.querySelectorAll('.neon-element').forEach(element => {
-    const glitch = new GlitchEffect(element);
-    element.addEventListener('mouseenter', () => glitch.startGlitch());
-    element.addEventListener('mouseleave', () => glitch.stopGlitch());
-});
 
 // PDF management functionality
 const addPdfButton = document.getElementById('addPdf');
@@ -172,17 +90,15 @@ function updatePdfLists() {
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
-                li.classList.add('neon-element', 'bubble-element');
+                li.classList.add('space-element');
                 selectedFilesList.appendChild(li);
-                new GlitchEffect(li);
             });
             // For now, we'll just duplicate the selected files in the available files list
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
-                li.classList.add('neon-element', 'bubble-element');
+                li.classList.add('space-element');
                 availableFilesList.appendChild(li);
-                new GlitchEffect(li);
             });
         });
 }
@@ -292,14 +208,3 @@ loadReportButton.addEventListener('click', () => {
 
 // Initial PDF list update
 updatePdfLists();
-
-// Screen flicker effect (optimized)
-function screenFlicker() {
-    const app = document.getElementById('app');
-    app.style.opacity = Math.random() * 0.02 + 0.98; // Reduced flicker intensity
-    setTimeout(() => {
-        app.style.opacity = 1;
-    }, 50);
-}
-
-setInterval(screenFlicker, 15000); // Reduced frequency for better performance
