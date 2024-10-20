@@ -1,12 +1,4 @@
-import sys
-from PyQt5.QtWidgets import QApplication
-from gui import PDFCompilerGUI
-
-def main():
-    app = QApplication(sys.argv)
-    window = PDFCompilerGUI()
-    window.show()
-    sys.exit(app.exec_())
+from gui import main as gui_main
 
 if __name__ == "__main__":
-    main()
+    gui_main()
