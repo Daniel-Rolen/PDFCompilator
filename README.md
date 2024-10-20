@@ -1,5 +1,7 @@
 # The Binder
 
+Current development is on the 'Bubbles' branch.
+
 A Python-based desktop application for PDF compilation with local file handling and a fun, user-friendly interface.
 
 ## 🎨 Branding
@@ -41,6 +43,12 @@ The Binder relies on the following Python libraries:
 6. http.server and socketserver: Used for creating a simple HTTP server.
    - Installation: Part of Python's standard library, no additional installation required.
 
+7. Flask: Web framework used for the backend API.
+   - Installation: `pip install flask`
+
+8. PyMuPDF (fitz): Used for PDF processing.
+   - Installation: `pip install PyMuPDF`
+
 ## Installation
 
 1. Clone this repository:
@@ -52,7 +60,17 @@ The Binder relies on the following Python libraries:
 2. Install the required dependencies:
    ```
    pip install -r requirements.txt
+   pip install flask PyMuPDF
    ```
+
+Note: If you encounter issues with tkinter, you may need to install it separately. On macOS, you can use Homebrew:
+```
+brew install python-tk
+```
+On Linux, you can use your package manager. For example, on Ubuntu:
+```
+sudo apt-get install python3-tk
+```
 
 ## Usage
 
@@ -88,8 +106,64 @@ Note: The table of contents functionality is integrated with the cover page sett
 
 ## Known Issues
 
-1. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
-2. The "Remove PDF" button functionality is inconsistent.
+1. The Flask application shows a warning about being a development server, which is expected and not an issue for our current development work.
+2. The Electron app is currently failing to start due to a missing shared library (libxshmfence.so.1).
+3. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
+4. The "Remove PDF" button functionality is inconsistent.
+5. Some features are still not fully implemented, such as actual PDF compilation and file handling.
+6. Need to implement functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
+7. Space in file names may cause issues with PDF compilation and handling.
+8. ModuleNotFoundError: No module named 'frontend' when running main.py. This might be due to a missing or incorrectly installed dependency.
+9. ModuleNotFoundError: No module named '_tkinter' when running main.py. This is likely due to tkinter not being installed or properly configured.
+10. On lower-end devices, the animated background and UI effects may cause slight performance issues. The number of particles and animation frequencies have been reduced to mitigate this, but further optimization may be necessary for very low-end devices.
+11. The shiny, reflective surface effect on UI elements may not be visible on devices with lower screen resolutions or older graphics cards.
+
+## Current Status
+
+We have successfully implemented the initial prototype with a cyberpunk-inspired GUI using Electron.js and Flask. The interface now features neon colors, glitch effects, and animated elements that align with the desired cyberpunk and zef culture aesthetic. Here's an update on our progress:
+
+1. Cyberpunk-inspired GUI:
+   - The interface has been redesigned with a dark background, neon colors, and angular UI elements.
+   - Animated background with floating particles has been implemented, creating a futuristic atmosphere.
+   - Eyeball mascots have been updated to look more robotic or cybernetic, fitting the cyberpunk theme.
+
+2. Animated background and UI elements:
+   - A subtle screen flicker effect has been added to enhance the cyberpunk feel.
+   - Buttons and other UI elements now have glitch effects and neon glow animations.
+   - Shiny, bubbly surfaces have been added to UI elements with subtle animations.
+
+3. Performance optimization:
+   - Animations and effects have been optimized for better performance on lower-end devices.
+   - The number of particles, animation frequencies, and effect intensities have been adjusted for a balance between visual appeal and performance.
+
+4. PDF compilation functionality:
+   - Basic backend functionality for PDF compilation has been implemented using PyPDF2.
+   - Frontend integration with the backend for PDF compilation is in progress.
+
+5. File management:
+   - Users can now add and remove PDF files from the compilation list.
+   - The interface displays both selected and available PDF files.
+
+6. Cover page and report functionality:
+   - Users can enable cover pages and specify page numbers for cover pages.
+   - Save and load report functionality has been implemented.
+
+The current focus is on further optimizing performance for smoother animations, especially on lower-end devices, and completing the integration of PDF compilation functionality with the frontend.
+
+Next steps include:
+1. Further optimizing the performance of animations and effects for very low-end devices.
+2. Completing the integration of PDF compilation functionality with the frontend.
+3. Implementing file selection for modifying page ranges of specific PDFs.
+4. Enhancing the interactivity of UI elements.
+5. Ensuring cross-platform compatibility.
+6. Implementing the functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
+7. Addressing the issue with spaces in file names for PDF compilation and handling.
+
+## Future Improvements
+
+1. Implement better management of report patterns for compilations directly within the application.
+2. Add a low-performance mode for devices that struggle with the current animations and effects.
+3. Implement progressive enhancement for the shiny, reflective surface effects to ensure compatibility with a wider range of devices.
 
 ## License
 

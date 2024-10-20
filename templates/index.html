@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Binder - Galaxy Edition</title>
+    <link rel="stylesheet" href="/static/styles.css?v={{ static_version }}">
+</head>
+<body>
+    <canvas id="galaxy-background"></canvas>
+    <div id="app">
+        <div id="content">
+            <h1>The Binder</h1>
+            <div id="controls">
+                <input type="text" id="pdfName" placeholder="Enter PDF name" class="space-element">
+                <button id="addPdf" class="space-element">Add PDF</button>
+                <button id="removePdf" class="space-element">Remove PDF</button>
+                <button id="compilePdf" class="space-element">Compile PDF</button>
+                <button id="selectOutputFolder" class="space-element">Select Output Folder</button>
+                <button id="saveReport" class="space-element">Save Report</button>
+                <button id="loadReport" class="space-element">Load Report</button>
+                <div class="toggle-container space-element">
+                    <label class="switch">
+                        <input type="checkbox" id="useCoverPages">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>Use Cover Page</span>
+                </div>
+            </div>
+            <div id="pdfSections">
+                <div id="selectedFiles">
+                    <h2>Selected Files</h2>
+                    <ul id="selectedFilesList"></ul>
+                </div>
+                <div id="availableFiles">
+                    <h2>Available Files</h2>
+                    <ul id="availableFilesList"></ul>
+                </div>
+            </div>
+            <div id="coverPageSettings" class="space-element">
+                <h2>Cover Page Settings</h2>
+                <input type="text" id="coverPages" placeholder="Enter cover page numbers (e.g., 1,2,3-5)" class="space-element">
+            </div>
+        </div>
+    </div>
+    <div id="pdfPreview" class="pdf-preview"></div>
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <p id="modalContent"></p>
+        </div>
+    </div>
+    <script src="/static/script.js?v={{ static_version }}"></script>
+</body>
+</html>
