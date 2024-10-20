@@ -175,8 +175,8 @@ class PDFCompilerGUI:
             del self.selected_files[file_path]
             self.file_listbox.delete(index)
             self.update_cover_source_label()
-            print(f"Removed PDF: {file_path}")  # Debug print
-            print(f"Remaining files: {self.selected_files}")  # Debug print
+            print(f"Removed PDF: {file_path}")
+            print(f"Remaining files: {self.selected_files}")
 
     def select_output_folder(self):
         self.output_folder = filedialog.askdirectory()
@@ -219,6 +219,7 @@ class PDFCompilerGUI:
                 self.save_reports_to_file()
                 self.update_report_listbox()
                 messagebox.showinfo("Report Saved", f"Report '{name}' has been saved.")
+                print(f"Debug: Report saved - {name}")
             else:
                 messagebox.showwarning("Invalid Input", "Please select valid pages before saving the report.")
 
@@ -241,20 +242,24 @@ class PDFCompilerGUI:
                     self.cover_pages_entry.insert(0, ','.join(map(str, selected_report.cover_pages)))
                 self.update_cover_source_label()
                 self.compile_pdfs(selected_report.page_selections)
+                print(f"Debug: Report loaded - {selected_name}")
             else:
                 messagebox.showerror("Error", "Selected report not found.")
 
     def save_reports_to_file(self):
         with open('reports.json', 'w') as f:
             json.dump([report.__dict__ for report in self.reports], f)
+        print(f"Debug: Reports saved to file - {len(self.reports)} reports")
 
     def load_reports_from_file(self):
         try:
             with open('reports.json', 'r') as f:
                 report_data = json.load(f)
                 self.reports = [Report(**data) for data in report_data]
+            print(f"Debug: Reports loaded from file - {len(self.reports)} reports")
         except FileNotFoundError:
             self.reports = []
+            print("Debug: No reports file found, starting with empty list")
 
     def update_file_listbox(self):
         self.file_listbox.delete(0, tk.END)
