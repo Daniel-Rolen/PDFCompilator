@@ -31,7 +31,7 @@ class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
         self.master.title("PDF Compiler")
-        self.master.geometry("600x400")
+        self.master.geometry("600x600")  # Increased height to accommodate new sections
 
         self.selected_files = {}
         self.output_folder = None
@@ -74,6 +74,27 @@ class PDFCompilerGUI:
         compile_button = tk.Button(self.master, text="Compile PDFs", command=self.compile_pdfs)
         compile_button.pack(pady=10)
 
+        # Output folder display
+        self.output_folder_label = tk.Label(self.master, text="Output Folder: none")
+        self.output_folder_label.pack(pady=5)
+
+        # Saved reports section
+        report_frame = tk.Frame(self.master)
+        report_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        tk.Label(report_frame, text="Saved Reports:").pack(anchor=tk.W)
+
+        self.report_listbox = tk.Listbox(report_frame, width=50)
+        self.report_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        report_scrollbar = tk.Scrollbar(report_frame, orient=tk.VERTICAL)
+        report_scrollbar.config(command=self.report_listbox.yview)
+        report_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.report_listbox.config(yscrollcommand=report_scrollbar.set)
+
+        self.update_report_listbox()
+
     def add_pdf(self):
         files = filedialog.askopenfilenames(filetypes=[("PDF Files", "*.pdf")])
         
@@ -93,7 +114,9 @@ class PDFCompilerGUI:
     def select_output_folder(self):
         self.output_folder = filedialog.askdirectory()
         if self.output_folder:
-            messagebox.showinfo("Output Folder", f"Selected output folder: {self.output_folder}")
+            self.output_folder_label.config(text=f"Output Folder: {self.output_folder}")
+        else:
+            self.output_folder_label.config(text="Output Folder: none")
 
     def get_page_selections(self):
         pdf_info = "\n".join([f"{info['file_name']} ({info['num_pages']} pages)" for info in self.selected_files.values()])
@@ -125,6 +148,7 @@ class PDFCompilerGUI:
                 report = Report(name, list(self.selected_files.keys()), page_selections)
                 self.reports.append(report)
                 self.save_reports_to_file()
+                self.update_report_listbox()
                 messagebox.showinfo("Report Saved", f"Report '{name}' has been saved.")
             else:
                 messagebox.showwarning("Invalid Input", "Please select valid pages before saving the report.")
@@ -162,6 +186,14 @@ class PDFCompilerGUI:
         self.file_listbox.delete(0, tk.END)
         for pdf_info in self.selected_files.values():
             self.file_listbox.insert(tk.END, f"{pdf_info['file_name']} ({pdf_info['num_pages']} pages)")
+
+    def update_report_listbox(self):
+        self.report_listbox.delete(0, tk.END)
+        if self.reports:
+            for report in self.reports:
+                self.report_listbox.insert(tk.END, report.name)
+        else:
+            self.report_listbox.insert(tk.END, "none")
 
     def compile_pdfs(self, page_selections=None):
         if not self.selected_files:
