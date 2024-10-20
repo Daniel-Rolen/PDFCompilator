@@ -33,8 +33,10 @@ def remove_pdf():
 
 @app.route('/compile_pdf', methods=['POST'])
 def compile_pdf():
+    use_cover_pages = request.json.get('useCoverPages', False)
+    cover_pages = request.json.get('coverPages', '')
     # This is a placeholder for the actual PDF compilation logic
-    return jsonify(success=True, message="PDFs compiled successfully", files=pdf_files)
+    return jsonify(success=True, message="PDFs compiled successfully", files=pdf_files, useCoverPages=use_cover_pages, coverPages=cover_pages)
 
 @app.route('/get_pdfs', methods=['GET'])
 def get_pdfs():

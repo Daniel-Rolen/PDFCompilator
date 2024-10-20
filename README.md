@@ -99,10 +99,15 @@ Note: The table of contents functionality is integrated with the cover page sett
 3. Unable to select specific PDFs from "The Binder's Cosmic Collection" list to modify page numbers or ranges.
 4. The "Remove PDF" button functionality is inconsistent.
 5. Flask module not found: Ensure Flask is installed properly using `pip install flask`.
+6. Buttons are missing from the GUI.
+7. Files selected and files available sections are absent from the GUI.
+8. The styling needs significant development to resemble a cross between cyberpunk and zef culture.
+9. Maintain the neon color palette throughout the interface.
+10. Implement spooky, looking-around animations for the eyeball mascots.
 
 ## Current Status
 
-We are currently working on implementing animated GUI elements using Electron.js while maintaining the existing Python backend functionality.
+We are currently working on implementing animated GUI elements using Electron.js while maintaining the existing Python backend functionality. The focus is on addressing the known issues and enhancing the user interface to match the desired cyberpunk and zef culture aesthetic.
 
 ## License
 

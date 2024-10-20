@@ -20,6 +20,25 @@
                 <button id="addPdf">Add PDF</button>
                 <button id="removePdf">Remove PDF</button>
                 <button id="compilePdf">Compile PDF</button>
+                <button id="selectOutputFolder">Select Output Folder</button>
+                <button id="saveReport">Save Report</button>
+                <button id="loadReport">Load Report</button>
+            </div>
+            <div id="pdfSections">
+                <div id="selectedFiles">
+                    <h2>Selected Files</h2>
+                    <ul id="selectedFilesList"></ul>
+                </div>
+                <div id="availableFiles">
+                    <h2>Available Files</h2>
+                    <ul id="availableFilesList"></ul>
+                </div>
+            </div>
+            <div id="coverPageSettings">
+                <h2>Cover Page Settings</h2>
+                <input type="checkbox" id="useCoverPages">
+                <label for="useCoverPages">Use cover pages</label>
+                <input type="text" id="coverPages" placeholder="Enter cover page numbers (e.g., 1,2,3-5)">
             </div>
             <div id="pdfList"></div>
         </div>

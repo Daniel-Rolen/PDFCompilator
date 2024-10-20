@@ -1,7 +1,5 @@
 // Animation for bubbly background
-const canvas = document.createElement('canvas');
-canvas.id = 'bubbly-background';
-document.getElementById('app').prepend(canvas);
+const canvas = document.getElementById('bubbly-background');
 const ctx = canvas.getContext('2d');
 
 // Set canvas size
@@ -18,6 +16,7 @@ class Bubble {
         this.y = canvas.height + Math.random() * 100;
         this.size = Math.random() * 20 + 10;
         this.speed = Math.random() * 2 + 1;
+        this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
     }
 
     rise() {
@@ -30,7 +29,7 @@ class Bubble {
     draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.fillStyle = this.color;
         ctx.fill();
     }
 }
@@ -54,35 +53,53 @@ animate();
 // Eyeball animation
 const eyeballs = document.querySelectorAll('.eyeball');
 
-document.addEventListener('mousemove', (e) => {
+function animateEyeballs() {
     eyeballs.forEach(eyeball => {
-        const rect = eyeball.getBoundingClientRect();
-        const eyeX = rect.left + rect.width / 2;
-        const eyeY = rect.top + rect.height / 2;
-        const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
-        const pupilRadius = rect.width / 4;
+        const pupil = eyeball.querySelector('.eyeball::after');
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 10;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
         
-        eyeball.style.setProperty('--pupil-x', `${Math.cos(angle) * pupilRadius}px`);
-        eyeball.style.setProperty('--pupil-y', `${Math.sin(angle) * pupilRadius}px`);
+        eyeball.style.setProperty('--pupil-x', `${x}px`);
+        eyeball.style.setProperty('--pupil-y', `${y}px`);
     });
-});
+    
+    setTimeout(animateEyeballs, Math.random() * 1000 + 500);
+}
+
+animateEyeballs();
 
 // PDF management functionality
 const addPdfButton = document.getElementById('addPdf');
 const removePdfButton = document.getElementById('removePdf');
 const compilePdfButton = document.getElementById('compilePdf');
+const selectOutputFolderButton = document.getElementById('selectOutputFolder');
+const saveReportButton = document.getElementById('saveReport');
+const loadReportButton = document.getElementById('loadReport');
 const pdfNameInput = document.getElementById('pdfName');
-const pdfList = document.getElementById('pdfList');
+const selectedFilesList = document.getElementById('selectedFilesList');
+const availableFilesList = document.getElementById('availableFilesList');
+const useCoverPagesCheckbox = document.getElementById('useCoverPages');
+const coverPagesInput = document.getElementById('coverPages');
 
-function updatePdfList() {
+function updatePdfLists() {
     fetch('/get_pdfs')
         .then(response => response.json())
         .then(pdfs => {
-            pdfList.innerHTML = '';
+            selectedFilesList.innerHTML = '';
+            availableFilesList.innerHTML = '';
             pdfs.forEach(pdf => {
                 const li = document.createElement('li');
                 li.textContent = pdf;
-                pdfList.appendChild(li);
+                selectedFilesList.appendChild(li);
+            });
+            // For now, we'll just duplicate the selected files in the available files list
+            // In a real application, you'd fetch available files separately
+            pdfs.forEach(pdf => {
+                const li = document.createElement('li');
+                li.textContent = pdf;
+                availableFilesList.appendChild(li);
             });
         });
 }
@@ -100,7 +117,7 @@ addPdfButton.addEventListener('click', () => {
         .then(response => response.json())
         .then(data => {
             alert(data.message);
-            updatePdfList();
+            updatePdfLists();
             pdfNameInput.value = '';
         });
     }
@@ -119,7 +136,7 @@ removePdfButton.addEventListener('click', () => {
         .then(response => response.json())
         .then(data => {
             alert(data.message);
-            updatePdfList();
+            updatePdfLists();
             pdfNameInput.value = '';
         });
     }
@@ -128,6 +145,13 @@ removePdfButton.addEventListener('click', () => {
 compilePdfButton.addEventListener('click', () => {
     fetch('/compile_pdf', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            useCoverPages: useCoverPagesCheckbox.checked,
+            coverPages: coverPagesInput.value,
+        }),
     })
     .then(response => response.json())
     .then(data => {
@@ -135,5 +159,23 @@ compilePdfButton.addEventListener('click', () => {
     });
 });
 
+selectOutputFolderButton.addEventListener('click', () => {
+    // This would typically open a folder selection dialog
+    // For now, we'll just show an alert
+    alert('Output folder selection is not implemented in this prototype.');
+});
+
+saveReportButton.addEventListener('click', () => {
+    // This would typically save the current compilation settings
+    // For now, we'll just show an alert
+    alert('Report saving is not implemented in this prototype.');
+});
+
+loadReportButton.addEventListener('click', () => {
+    // This would typically load saved compilation settings
+    // For now, we'll just show an alert
+    alert('Report loading is not implemented in this prototype.');
+});
+
 // Initial PDF list update
-updatePdfList();
+updatePdfLists();
