@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import filedialog, messagebox, simpledialog, ttk
 from pdf_compiler import PDFCompiler
 from name_generator import generate_space_name
 import json
@@ -22,16 +22,18 @@ def parse_page_selection(pages_str, max_pages):
     return sorted([p for p in pages if 1 <= p <= max_pages])
 
 class Report:
-    def __init__(self, name, file_paths, page_selections):
+    def __init__(self, name, file_paths, page_selections, use_cover_pages=False, cover_pages=None):
         self.name = name
         self.file_paths = file_paths
         self.page_selections = page_selections
+        self.use_cover_pages = use_cover_pages
+        self.cover_pages = cover_pages
 
 class PDFCompilerGUI:
     def __init__(self, master):
         self.master = master
         self.master.title("PDF Compiler")
-        self.master.geometry("600x600")  # Increased height to accommodate new sections
+        self.master.geometry("600x700")  # Increased height to accommodate new sections
 
         self.selected_files = {}
         self.output_folder = None
@@ -70,6 +72,19 @@ class PDFCompilerGUI:
 
         load_report_button = tk.Button(button_frame, text="Load Report", command=self.load_report)
         load_report_button.pack(side=tk.LEFT, padx=5)
+
+        # Cover pages section
+        cover_frame = tk.Frame(self.master)
+        cover_frame.pack(fill=tk.X, padx=10, pady=5)
+
+        self.use_cover_pages_var = tk.BooleanVar()
+        self.use_cover_pages_check = tk.Checkbutton(cover_frame, text="Use cover pages", variable=self.use_cover_pages_var)
+        self.use_cover_pages_check.pack(side=tk.LEFT)
+
+        tk.Label(cover_frame, text="Cover pages:").pack(side=tk.LEFT, padx=(10, 0))
+        self.cover_pages_entry = tk.Entry(cover_frame, width=20)
+        self.cover_pages_entry.pack(side=tk.LEFT, padx=5)
+        tk.Label(cover_frame, text="(e.g., 1,2,3-5)").pack(side=tk.LEFT)
 
         compile_button = tk.Button(self.master, text="Compile PDFs", command=self.compile_pdfs)
         compile_button.pack(pady=10)
@@ -145,7 +160,9 @@ class PDFCompilerGUI:
         if name:
             page_selections = self.get_page_selections()
             if page_selections:
-                report = Report(name, list(self.selected_files.keys()), page_selections)
+                use_cover_pages = self.use_cover_pages_var.get()
+                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for info in self.selected_files.values())) if use_cover_pages else None
+                report = Report(name, list(self.selected_files.keys()), page_selections, use_cover_pages, cover_pages)
                 self.reports.append(report)
                 self.save_reports_to_file()
                 self.update_report_listbox()
@@ -166,6 +183,10 @@ class PDFCompilerGUI:
             if selected_report:
                 self.selected_files = {path: PDFCompiler.get_pdf_info(path) for path in selected_report.file_paths}
                 self.update_file_listbox()
+                self.use_cover_pages_var.set(selected_report.use_cover_pages)
+                self.cover_pages_entry.delete(0, tk.END)
+                if selected_report.cover_pages:
+                    self.cover_pages_entry.insert(0, ','.join(map(str, selected_report.cover_pages)))
                 self.compile_pdfs(selected_report.page_selections)
             else:
                 messagebox.showerror("Error", "Selected report not found.")
@@ -210,10 +231,19 @@ class PDFCompilerGUI:
         if not page_selections:
             return
 
+        use_cover_pages = self.use_cover_pages_var.get()
+        cover_pages = None
+        if use_cover_pages:
+            try:
+                cover_pages = parse_page_selection(self.cover_pages_entry.get(), max(info['num_pages'] for info in self.selected_files.values()))
+            except ValueError as e:
+                messagebox.showwarning("Invalid Input", f"Error parsing cover pages: {str(e)}")
+                return
+
         output_filename = f"{generate_space_name()}.pdf"
         output_file = os.path.join(self.output_folder, output_filename)
 
-        if PDFCompiler.compile_pdfs(self.selected_files.keys(), page_selections, output_file):
+        if PDFCompiler.compile_pdfs(list(self.selected_files.keys()), page_selections, output_file, use_cover_pages, cover_pages):
             messagebox.showinfo("Success", f"PDFs compiled successfully.\nOutput file: {output_file}")
         else:
             messagebox.showerror("Error", "Failed to compile PDFs. Please try again.")
