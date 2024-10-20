@@ -3,20 +3,25 @@ const canvas = document.getElementById('bubbly-background');
 const ctx = canvas.getContext('2d');
 
 // Set canvas size
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
 // Particle properties
 const particles = [];
-const particleCount = 30; // Reduced from 50 to 30 for better performance
+const particleCount = 20; // Reduced from 30 to 20 for better performance
 
 class Particle {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.size = Math.random() * 2 + 1;
-        this.speedX = Math.random() * 1 - 0.5; // Reduced speed range
-        this.speedY = Math.random() * 1 - 0.5; // Reduced speed range
+        this.speedX = Math.random() * 0.5 - 0.25; // Reduced speed range
+        this.speedY = Math.random() * 0.5 - 0.25; // Reduced speed range
         this.color = `hsl(${Math.random() * 60 + 180}, 100%, 50%)`;
     }
 
@@ -96,9 +101,9 @@ function createBubble() {
     const bubble = document.createElement('div');
     bubble.classList.add('bubble');
     bubble.style.left = `${Math.random() * 100}%`;
-    bubble.style.width = `${Math.random() * 50 + 10}px`;
+    bubble.style.width = `${Math.random() * 30 + 10}px`; // Reduced size for better performance
     bubble.style.height = bubble.style.width;
-    bubble.style.animationDuration = `${Math.random() * 5 + 5}s`;
+    bubble.style.animationDuration = `${Math.random() * 3 + 5}s`; // Reduced animation duration
     document.body.appendChild(bubble);
 
     bubble.addEventListener('animationend', () => {
@@ -107,7 +112,7 @@ function createBubble() {
 }
 
 // Create bubbles at a controlled rate
-setInterval(createBubble, 1000);
+setInterval(createBubble, 2000); // Reduced frequency for better performance
 
 // Glitch effect for neon elements (optimized)
 class GlitchEffect {
@@ -120,7 +125,7 @@ class GlitchEffect {
     startGlitch() {
         if (this.isGlitching) return;
         this.isGlitching = true;
-        this.glitchInterval = setInterval(() => this.applyGlitch(), 100);
+        this.glitchInterval = setInterval(() => this.applyGlitch(), 200); // Reduced frequency
     }
 
     stopGlitch() {
@@ -133,7 +138,7 @@ class GlitchEffect {
         const glitchChars = '!@#$%^&*()_+-={}[]|;:,.<>?';
         this.element.textContent = this.originalText
             .split('')
-            .map(char => Math.random() > 0.9 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char)
+            .map(char => Math.random() > 0.95 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char)
             .join('');
     }
 }
@@ -288,19 +293,13 @@ loadReportButton.addEventListener('click', () => {
 // Initial PDF list update
 updatePdfLists();
 
-// Resize canvas when window is resized
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-
 // Screen flicker effect (optimized)
 function screenFlicker() {
     const app = document.getElementById('app');
-    app.style.opacity = Math.random() * 0.05 + 0.95; // Reduced flicker intensity
+    app.style.opacity = Math.random() * 0.03 + 0.97; // Reduced flicker intensity
     setTimeout(() => {
         app.style.opacity = 1;
     }, 50);
 }
 
-setInterval(screenFlicker, 8000); // Reduced frequency for better performance
+setInterval(screenFlicker, 10000); // Reduced frequency for better performance

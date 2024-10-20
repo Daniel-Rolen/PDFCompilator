@@ -23,8 +23,8 @@
                 <button id="selectOutputFolder" class="neon-element bubble-element">Select Output Folder</button>
                 <button id="saveReport" class="neon-element bubble-element">Save Report</button>
                 <button id="loadReport" class="neon-element bubble-element">Load Report</button>
-                <div class="toggle-container">
-                    <label class="switch bubble-element">
+                <div class="toggle-container bubble-element">
+                    <label class="switch">
                         <input type="checkbox" id="useCoverPages">
                         <span class="slider round"></span>
                     </label>
@@ -32,16 +32,16 @@
                 </div>
             </div>
             <div id="pdfSections">
-                <div id="selectedFiles">
+                <div id="selectedFiles" class="bubble-element">
                     <h2>Selected Files</h2>
                     <ul id="selectedFilesList"></ul>
                 </div>
-                <div id="availableFiles">
+                <div id="availableFiles" class="bubble-element">
                     <h2>Available Files</h2>
                     <ul id="availableFilesList"></ul>
                 </div>
             </div>
-            <div id="coverPageSettings">
+            <div id="coverPageSettings" class="bubble-element">
                 <h2>Cover Page Settings</h2>
                 <input type="text" id="coverPages" placeholder="Enter cover page numbers (e.g., 1,2,3-5)" class="neon-element bubble-element">
             </div>

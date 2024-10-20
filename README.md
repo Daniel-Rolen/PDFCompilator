@@ -155,6 +155,10 @@ Next steps include:
 6. Implementing the functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
 7. Addressing the issue with spaces in file names for PDF compilation and handling.
 
+## Future Improvements
+
+1. Implement better management of report patterns for compilations directly within the application.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
