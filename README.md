@@ -63,6 +63,15 @@ The Binder relies on the following Python libraries:
    pip install flask PyMuPDF
    ```
 
+Note: If you encounter issues with tkinter, you may need to install it separately. On macOS, you can use Homebrew:
+```
+brew install python-tk
+```
+On Linux, you can use your package manager. For example, on Ubuntu:
+```
+sudo apt-get install python3-tk
+```
+
 ## Usage
 
 1. Run the application:
@@ -105,6 +114,7 @@ Note: The table of contents functionality is integrated with the cover page sett
 6. Need to implement functionality to add a cover page with new page numbers and a cover letter to the final compiled PDF.
 7. Space in file names may cause issues with PDF compilation and handling.
 8. ModuleNotFoundError: No module named 'frontend' when running main.py. This might be due to a missing or incorrectly installed dependency.
+9. ModuleNotFoundError: No module named '_tkinter' when running main.py. This is likely due to tkinter not being installed or properly configured.
 
 ## Current Status
 
